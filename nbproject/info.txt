@@ -1,0 +1,1 @@
+This file tells which type of other file will be there
