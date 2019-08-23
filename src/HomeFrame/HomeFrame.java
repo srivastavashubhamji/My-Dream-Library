@@ -4722,4 +4722,52 @@ public class HomeFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+        private void btnBkAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBkAddActionPerformed
+        // Clearing the Text Fields of "Add New Book Panel" and Display that Panel...
+            
+            clearFields(allBkAddTxt);
+            showOnlyPanel("pnlBkAdd");
+            allBkAddTxt[8].setText("-");    // txtBkAuth2
+            allBkAddTxt[9].setText("-");    // txtBkAbout        
+            lblBkErrSucc.setVisible(false);
+        }//GEN-LAST:event_btnBkAddActionPerformed
+
+        private void btnBkIssueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
+        // This method will invoked when All the Fields are filled and Submit Clicked to create new Book(s)...
+            
+            try {
+                lblBkI_A_err.setForeground(Color.red);
+                lblBkI_A_Data.setText("");
+                if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) {
+    //          SQLExc... || Exc... occured 
+    //              p("SQLExc... || Exc... occured in chk_UpdtMem_ship( ) , isMemShipExpUpdated = " + isMemShipExpUpdated);
+                    isMemShipExpUpdated = check_UpdateExpiryOfMem_ship();
+    //              p("Again Trying...chk(), isMemShipExpUpdated = " + isMemShipExpUpdated);
+                    if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) {
+                        //             Membership Not Updated...
+                        lblBkI_A_err.setVisible(true);
+                        lblBkI_A_err.setText("OOPs...Connection Failed, Re-Start MySql Database !");
+                        lblBkI_A_Data.setEditable(false);
+                        lblBkI_A_Data.setToolTipText("Restart MySQL Database to Enter the Member Id for Issuing book.");
+                    }
+                } else {
+    //             This Time Membership Updated...SUCCESFULLY
+                    lblBkI_A_err.setVisible(false);
+                    lblBkI_A_err.setText("");
+                    lblBkI_A_Data.setEditable(true);
+                    lblBkI_A_Data.setToolTipText("Enter the Member Id for Issuing book.");
+                }
+                showOnlyPanel("pnlBkIssue");
+                pnlBkI_B.setVisible(false);
+                pnlBkI_C.setVisible(false);
+                pnlBkI_D.setVisible(false);
+                pnlBkI_A.setVisible(true);
+                btnBkI_A_show.setVisible(false); // Display when The Enter mem Already Took One/More Books
+            } catch (Exception e) {
+
+            }
+        }//GEN-LAST:event_btnBkIssueActionPerformed
+}
+
+
   
