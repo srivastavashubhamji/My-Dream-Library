@@ -5046,6 +5046,30 @@ public class HomeFrame extends javax.swing.JFrame {
         lblBkR_A_err.setForeground(new Color(255, 0, 0));
         lblBkR_A_err.setText("");
     }
+        private void btnBkRemoveActionPerformed(java.awt.event.ActionEvent evt) {
+	// This method will display a Book Deletion Panel WHEN "Book Delete" button will clicked...
+        showOnlyPanel("pnlBkDel");
+        lblBkD_errMsg.setText("  ");
+    }
+
+    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {
+
+        showOnlyPanel("pnlReport");
+        if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2)
+		// -1 Represents : This method didn't Updated mStatus of mem_ship...
+            isMemShipExpUpdated = check_UpdateExpiryOfMem_ship();
+			
+		resetReportComps();
+		// p("Report clicked actions were performed");
+    }
+
+    private void btnBkE_backActionPerformed(java.awt.event.ActionEvent evt) {
+	// This method is invoked when 'Back' button clicked...
+        showOnlyPanel("pnlBkEdit");
+        txtBkEdit_find.setText("");
+        lblBkEditErr.setVisible(false);
+    }
+
 }
 
 
