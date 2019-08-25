@@ -5069,6 +5069,116 @@ public class HomeFrame extends javax.swing.JFrame {
         txtBkEdit_find.setText("");
         lblBkEditErr.setVisible(false);
     }
+    private void btnBkE_updateActionPerformed(java.awt.event.ActionEvent evt) {
+	
+	// This method will run when "Update Book" information Button will clicked...
+        String calcId = lblBkE_id.getText();
+		// As, Prev. Panel's Label contains-->"Id : 10001" ...
+        int bkId = Integer.parseInt(calcId.substring(5));
+        String bkName = txtBkE_name.getText();
+        String bkType = txtBkE_type.getText();
+        String bkRack = txtBkE_rack.getText();
+        String bkAuth1 = txtBkE_auth1.getText();
+        String bkPub = txtBkE_pub.getText();
+        String bkQty = txtBkE_qty.getText();
+        String bkPrice = txtBkE_price.getText();
+        String bkPages = txtBkE_pages.getText();
+        String bkAuth2 = txtBkE_auth2.getText();
+        String bkAbout = txtBkE_about.getText();
+
+        int validNo = 0;
+        Connection con = null;
+        CallableStatement st = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        int newAccId = 0;
+        p("1) Update clicked");
+        try {
+            // Checking For Empty Feilds ...
+            allBkAddTxt = new JTextField[]{txtBkE_name, txtBkE_type, txtBkE_rack, txtBkE_auth1, txtBkE_auth2,
+                txtBkE_pub, txtBkE_about, txtBkE_qty, txtBkE_price, txtBkE_pages};
+
+            // p("checking isEmptyFields() ...");
+            if (isEmptyFields(allBkAddTxt) == true) {
+                lblBkEditNowErr.setVisible(true);
+                throw new Exception("OOPs... Some Fields are Empty, Retry!");  // Err_msg
+
+            }
+            // p("checking isInvalidBkEditFields() ...");
+            if ((validNo = isInvalidBkEditFields()) != 0) {
+				
+                lblBkEditNowErr.setVisible(true);
+                lblBkEditNowErr.setVisible(true);
+                throw new Exception("OOPs... Some Fields are Invalid, Retry!");  // Err_msg
+
+			// Inserting Feilds Data ...
+            } else {
+                con = getDbConnObj();
+                if (con == null) {
+                    lblBkEditNowErr.setVisible(true);
+                    throw new Exception("OOPs... Something Went Wrong, Retry!");  // Err_msg
+                }
+                int pg = Integer.parseInt(bkPages);
+                int rack = Integer.parseInt(bkRack);
+                double price = Double.parseDouble(bkPrice);
+
+                String sql = "UPDATE `tbl_book_info` SET b_name = ?, b_type = ?,b_auth1 = ?,b_auth2 = ?, b_pub = ?, b_pages = ?,"
+                        + "b_rack = ?, b_price = ?, b_about = ? where b_acc_id=?";
+
+                con = getDbConnObj();
+				//  p("Conn Created ...");
+                PreparedStatement stmtPrep = con.prepareStatement(sql);
+
+                stmtPrep.setString(1, bkName);
+                // p(") one");
+                stmtPrep.setString(2, bkType);
+                // p(") two");
+                stmtPrep.setString(3, bkAuth1);
+                // p(") Three");
+                stmtPrep.setString(4, bkAuth2);
+                // p(") Four");
+                stmtPrep.setString(5, bkPub);
+                // p(") Five");
+                stmtPrep.setInt(6, pg);
+                // p(") Six");
+                stmtPrep.setInt(7, rack);
+                // p("4) seven");
+                stmtPrep.setDouble(8, price);
+                // p("4) eight");
+                stmtPrep.setString(9, bkAbout);
+                // p(") Nine");
+                stmtPrep.setInt(10, bkId);
+                int affectedRows = -1;
+                try {
+                    stmtPrep.execute();
+                } catch (Exception e) {
+                // p("Exception occured e.getMessage()" + e.getMessage());
+
+                }
+                // p("4) Exe..d sql , aff = " + affectedRows);
+                if (affectedRows == 0) {
+                    lblBkEditNowErr.setVisible(true);
+                //  p("5) could not add Book... throw");
+                    throw new Exception("OOPs...Book Details was not Update, Retry !");
+                } else {
+                    lblBkEditNowErr.setVisible(true);
+                    lblBkEditNowErr.setForeground(new Color(20, 140, 20));
+                    lblBkEditNowErr.setText("Great...Book Details Updated !");
+                }
+            }
+        } catch (Exception e) {
+            lblBkEditNowErr.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkErrSucc);
+        } finally {
+            try {
+                st.close();
+                stmt.close();
+                rs.close();
+                con.close();
+            } catch (Exception e) {
+            }
+        }
+    }
 
 }
 
