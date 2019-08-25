@@ -4950,6 +4950,102 @@ public class HomeFrame extends javax.swing.JFrame {
 
       }
    }
+       private void btnBkAdvEditActionPerformed(java.awt.event.ActionEvent evt) {
+        showOnlyPanel("pnlBkEdit");
+        txtBkEdit_find.setText("");
+        lblBkEditErr.setVisible(false);
+//        String data = txtBkEdit_find.getText();        
+//        String sql = "",typeOfSearch="";
+//        try{
+//                Connection con = getDbConnObj();
+//                Statement st = con.createStatement();
+//                ResultSet rs = st.executeQuery(sql);
+//                if(rs == null){
+//                    throw new Exception("OOPs... No such "+typeOfSearch+" Found, Retry !");
+//                }else{
+//                    try{
+// //                      p("shifting Record Pointer ...");
+//                       rs.next();
+//                       String bid = ""+rs.getInt("b_acc_id");                       
+//                       String bname = ""+rs.getString("b_name");
+//                       String bqty = ""+rs.getInt("b_qty");
+//                       String btype = rs.getString("b_type");
+//                       String bauth1 = rs.getString("b_auth1");
+//                       String bauth2 = ""+rs.getString("b_auth2");
+//                       String bpub = rs.getString("b_pub");
+//                       String bpages = ""+rs.getInt("b_pages");
+//                       String brack = ""+rs.getInt("b_rack");
+//                       String bprice = ""+rs.getDouble("b_price");
+//                       String babout = rs.getString("b_about");
+// //                       p("========= DATA TO BE EDITED  ========= ");
+// //                    p(bid +" AND "+ bname +" AND "+ bqty +" AND "+ btype  +" AND "+ bauth1  +" AND "+ 
+//                         bauth2  +" AND "+ bpub  +" AND "+ bpages  +" AND "+ brack  +" AND "+ bprice  +" AND "+ 
+//                         babout );
+//                    }catch(SQLException ex){
+//                        throw new Exception("No such "+typeOfSearch+" found, Retry!");
+//                    }
+//                    catch(Exception e)
+//                    {
+//                        lblBkEditErr.setVisible(true);
+//                        showMsgOnLbl(e.getMessage(),lblBkEditErr);
+//                    }
+//                }
+//            }catch(Exception e){
+//                lblBkEditErr.setVisible(true);
+//                showMsgOnLbl(e.getMessage(),lblBkEditErr);
+//            }
+
+    }
+
+    private void btnBkShow_GoActionPerformed(java.awt.event.ActionEvent evt) {		
+	
+    // This method will invoked WHEN Book Id / Name / AuthorName / Type was given and Submitted to fetch the Books related to the given Information...
+		
+		showOnlyPanel("pnlBkEdit");
+        lblBkEditErr.setVisible(false);
+        String data = txtBkEdit_find.getText();
+        String sql = "", typeOfSearch = "";
+        try {
+            if (data.equals("")) {
+	// ("empty field");
+                throw new Exception("OOps...Field is Empty !");
+            }
+            if (data.matches("^\\d+$")) {
+                //            p("This is in 'Id' Forma");
+                sql = "Select * from tbl_book_info where b_acc_id = " + data;
+                typeOfSearch = "Book Id";
+            } else {
+                //            p("This is in 'Book Name' Format");
+                sql = "Select * from tbl_book_info where b_name like '%" + data + "%';";
+                typeOfSearch = "Book Name";
+            }
+            Connection con = getDbConnObj();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs == null || rs.next() == false) {
+                throw new Exception("OOPs... No such " + typeOfSearch + " Found, Retry !");
+            } else {
+                rs.getInt("b_acc_id");
+                showOnlyPanel("pnlBkEditNow");
+			// Set 'Reason Behind Del. ' by default to "Member Lost the Book" and "Show appropriate panel"                        
+                takeDataToSetEdit(rs); // Passing 'ResultSet' to fill the fields for Updation of Book 
+            }
+        } catch (Exception e) {
+            lblBkEditErr.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkEditErr);
+        }
+    }
+
+    private void btnBkReturnActionPerformed(java.awt.event.ActionEvent evt) {		
+	// This method will invoked when "Book Return" Button will Clicked...	
+        showOnlyPanel("pnlBkRet");
+        lblBkR_A_Data.setText("");
+        pnlBk_R_B.setVisible(false);
+        pnlBk_R_C.setVisible(false);
+        pnlBk_R_A.setVisible(true);
+        lblBkR_A_err.setForeground(new Color(255, 0, 0));
+        lblBkR_A_err.setText("");
+    }
 }
 
 
