@@ -5179,7 +5179,214 @@ public class HomeFrame extends javax.swing.JFrame {
             }
         }
     }
+        private void btnBkE_showBksActionPerformed(java.awt.event.ActionEvent evt) {	// This method will call when Book will ready to display...
+        showOnlyPanel("pnlBkShow");
 
+        lblBkShowErr.setVisible(false);
+        JLabel[] allShowBkSuccLbl = {lblBkShowTotalBk, lblBkShowNBks,
+            lblBkShowBkQty, lblBkShowNBkQty,
+            lblBkShowBkStsA, lblBkShowNBkStsA,
+            lblBkShowBkStsI, lblBkShowNBkStsI,
+            lblBkShowBkStsR, lblBkShowNBkStsR
+        };
+
+        for (JLabel temp : allShowBkSuccLbl) {
+            temp.setForeground(new Color(20, 180, 20));
+            temp.setVisible(true);
+        }
+
+        listBkShow.setModel(new javax.swing.AbstractListModel<String>() {
+			
+            String[] strings = getBooksRecords();
+
+            public int getSize() {
+                return strings.length;
+            }
+
+            public String getElementAt(int i) {
+                return strings[i];
+            }
+        });
+    }
+
+    private void btnBkD_delActionPerformed(java.awt.event.ActionEvent evt) {// This method will calleded when Book Delete Panel A : "pnlBkDel" is Submitted ...
+        
+        showOnlyPanel("pnlBkDel");
+        lblBkD_errMsg.setText("  ");
+        String data = txtBkD_data.getText();
+        String sql, inFix, typeOfSearch;
+        int flagForTypeOfSearch;
+        try {
+            if (data.equals("")){
+                lblBkD_errMsg.setText("  ");
+                throw new Exception("OOps...Field is Empty !");
+            }
+            if (data.matches("^\\d+$")) {
+                typeOfSearch = "Book Id";
+                flagForTypeOfSearch = 1;
+            } else {
+			// p("This is in 'Book Name' Format");
+                typeOfSearch = "Book Name";
+                flagForTypeOfSearch = 2;
+            }
+            if (flagForTypeOfSearch == 1)                
+                inFix = "WHERE a.b_acc_id = "+ data +" Group by a.b_acc_id Order by a.b_name ; ";
+            else
+                inFix = "WHERE a.b_name like '%"+ data +"%' and a.b_acc_id = b.accid Group by a.b_acc_id Order by a.b_name ; ";
+
+			/* Fetched record(s) would look like this tabular structure...
+				Select a.b_acc_id Code , a.b_name Name, a.b_qty Qty , a.b_type 'Type' , a.b_auth1 Author , a.b_price Price ,(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'I' ) Issued,(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'R' ) Repairing,(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'D' ) Destroyed,(select count(*) from tbl_books b where b.accid = a.b_acc_id  and b.status = 'A') Available From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid  WHERE a.b_acc_id =10001 Group by a.b_acc_id;
+                +-------+-----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+
+                | Code  | Name      | Qty | Type        | Author | Price  | Issued | Repairing | Destroyed | Available |
+                +-------+-----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+
+                | 10001 | Java book |   3 | Programming | lala   | 799.00 |      1 |         0 |         0 |         2 |
+                +-------+-----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+        */
+            sql = "Select a.b_acc_id Code , a.b_name Name, a.b_qty Qty , a.b_type 'Type' , a.b_auth1 Author , a.b_price Price , "+
+                  "	(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'I' ) Issued, "+
+                  "	(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'R' ) Repairing, "+
+                  "	(select count(*) from tbl_books b where b.accid = a.b_acc_id and b.status = 'D' ) Destroyed, "+
+                  "	(select count(*) from tbl_books b where b.accid = a.b_acc_id  and b.status = 'A') Available  "+
+                  "From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid  "+ inFix ;
+            // p("Delete Book Sql 1 : \n"+sql);
+            
+            Connection con = getDbConnObj();
+            if (con == null) {
+                lblBkD_errMsg.setText("  ");
+                throw new Exception("OOPs...Connection Problem, Check & Retry !");
+            }
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs == null || rs.next() == false) {
+                lblBkD_errMsg.setText("  ");
+                throw new Exception("OOPs... No such " + typeOfSearch + " Found, Retry !");
+            }
+
+            if( ! setDataOnBkDelPanel_B(rs) ){
+			/** This ^ method will fetch  --> Row (if Only AccId is entered OR flagForTypeOfSearch == 1)          OR
+										  --> Rows (if BookName is entered OR flagForTypeOfSearch == 2)
+							 AND set Data --> bkDelPanel_C (if Only AccId is entered OR flagForTypeOfSearch == 1) OR
+										  --> bkDelPanel_B (if BookName is entered OR flagForTypeOfSearch == 2) than select One of Those Fetched Books & set on pnl_C    */
+                lblBkD_errMsg.setText("  ");
+                lblBkD_errMsg.setText("OOPs, Data could Not Fetched Properly, Re-Enter Id !");
+            }
+            // Till here all went well...Data rel. to Entered 'bkAccId/bkName' set on pnlBkDel_B, now show that pnl...
+            showOnlyPanel("pnlBkDel_B");
+            
+        } catch (Exception e) {
+            lblBkD_errMsg.setText("  ");
+            showMsgOnLbl(e.getMessage(), lblBkD_errMsg);
+        }
+    }
+
+    private void btnBkD_backActionPerformed(java.awt.event.ActionEvent evt) {
+        // To show Default Panel with This button ...i.e. Logo 
+        showOnlyPanel("pnlLogo");
+    }
+
+    private void btnBkD_back2ActionPerformed(java.awt.event.ActionEvent evt) {
+        // To show Default Panel with This button  ...i.e. Logo
+        showOnlyPanel("pnlLogo");
+    }
+
+    private void btnBkDel_E_backActionPerformed(java.awt.event.ActionEvent evt) {
+        // To show Default Panel with This button ...i.e. Logo
+        showOnlyPanel("pnlBkDel_B");
+    }
+
+    private void btnBkDel_EActionPerformed(java.awt.event.ActionEvent evt) {
+        // This is Called when "Book Deletion's SubPanel C     "pnlBkDelNow"    is Submitted" ...
+
+    // If (MemLost Selected and textField is Not Null){}
+        try {
+            if (lblBkDelE_rbtnMem.isSelected()) {
+                /*
+				
+				Next Steps...
+				*) What we know : 	Member(m_id) Lost Book(accid), So
+					1)  If Accid of Selected Book is Matched with...
+						Books Issued to this Member(m_id)...
+							Than : Set that Books data on Directly at 'Final Panel E'.
+						Else
+							All the Books issued To That Member would display in a List...
+					2)  For Deletion, Appropriate book would be chosen and submitted for next Panel...
+					3)  When Final Panel is Submitted (that means : Delete this Book 	or say...)
+						a)	Turn the Status of That Book to 'D' in Tbl_books,
+						b)  Make Entry of 'M_id', 'Accid', 'Accno', 'CurrDate' in Table 'bkDel',
+						c)  Update " 'Accid' and 'Accno'"  in Table bktrans...
+				*/
+				
+				//  Selected Accid is in :- lblBkDelE_Bid : PnlBkDel_C has "Book Id : 10001"                
+                String accid = lblBkDelE_Bid.getText().substring(10);
+                String mId = txtBkDel_E_mid.getText();
+                if ( !(mId.matches("^\\d+$")) )
+                    throw new Exception("OOPs... Invalid Member Id, Retry !");
+                
+                // String feedbk = checkIssuedNdSetOnPnl( mId );
+                handleAccidIssuedTo( accid, mId );
+                
+            }   // if ( 'Other Reason' Selected and Text Area is Not null and with proper Explained Reason )
+            else if (lblBkDelE_rbtnOth.isSelected()) {
+			/*  Next Steps...
+					1) Take Reason from TextArea and
+					   All Data in String Array from ArrList...
+					2) Insert into Table 'tbl_book_del' with fields 'Accid, Accno, Reason, Date' insert karo...
+			*/
+
+                String []arrBkDel = (listBkRet.get(listBkDel_B.getSelectedIndex())).split("([\\^\\^\\^]+)");            // Explaination...At the time of Submission , Whatever index is selected in pnlBkDel_B... Fetch the Value from Global ListObject 'listBkRet' by .get(n) using Corresponding Index No, Use split() method to Store that Concatenated String into a String Array...
+                String reason = txtAreaBkDel_E.getText();																
+                int accid = Integer.parseInt(arrBkDel[0]);
+
+                if ((txtAreaBkDel_E.getText().length() < 11))
+                    throw new Exception("Kindly Feed Properly Explained Reason ...!");
+                
+                if (txtAreaBkDel_E.getText().length() > 100)
+                    throw new Exception("Kindly Feed Reason with Few Lesser words ...!");                
+                                                                                                                        //p("\n%%%%% back Step 0- calling getAccnoFor( other....tion, accid = "+accid+")");
+                String accno = getAccnoFor("OtherReasonOfBookDeletion", accid );
+                if( ! accno.matches("^\\d+$"))                                                                          //If "102" like String Not Returned then the "customExceptionMessage" is returned ...
+                    throw new Exception(accno);
+				//  Further steps :-
+				// 		Update tbl_books set Status -> 'D'eleted,
+				// 		Insert into Table tableBookDeleted with Fields Accid, Accno, Reason, DelDate=getDbInsertableDate()...
+                String updateFeedbk = updateStatusInTblBooks(accid,Integer.parseInt(accno));
+                if( ! updateFeedbk.equals("tbl_books is Updated Successfully"))
+                    throw new Exception( updateFeedbk);
+                
+                updateFeedbk = insertIntoTblBookDel(accid,Integer.parseInt(accno),"otherMemberSelected");
+                if( ! updateFeedbk.equals("Table bkDel is Updated Successfully"))
+                    throw new Exception( updateFeedbk);
+                lblBkD_errMsg.setForeground(new Color(240,255,255));
+                lblBkD_errMsg.setText("  ");
+                lblBkD_errMsg.setText("A Book ["+ accid +"] is Successfully Deleted because - "+ reason);
+                showOnlyPanel("pnlBkDel");
+                
+
+            }
+        } catch (SQLException e) {
+        //  p("OOPs,SQLException e occured ok");
+            lblBkDel_E_Err.setVisible(true);
+            lblBkDel_E_Err.setText("OOPs...Something Went Wrong, Retry !");
+        } catch (Exception e) {
+        //     p("OOPs,Exception e occured okok");
+            lblBkDel_E_Err.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkDel_E_Err);
+        }
+
+    }
+
+    private void lblBkDelE_rbtnMemActionPerformed(java.awt.event.ActionEvent evt) {
+        // Method will called when Book Delete SubPanel D is submitted...
+        btnBkDel_E.setText("Check");
+        pnlBkDelE_m.setVisible(true);
+        pnlBkDelE_o.setVisible(false);
+    }
+
+    private void lblBkDelE_rbtnOthActionPerformed(java.awt.event.ActionEvent evt) {
+        // Method to Save and Delete
+        btnBkDel_E.setText("Save & Delete");
+        pnlBkDelE_m.setVisible(false);
+        pnlBkDelE_o.setVisible(true);
+    }
 }
 
 
