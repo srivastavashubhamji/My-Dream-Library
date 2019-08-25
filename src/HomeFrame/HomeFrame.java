@@ -4730,9 +4730,9 @@ public class HomeFrame extends javax.swing.JFrame {
             allBkAddTxt[8].setText("-");    // txtBkAuth2
             allBkAddTxt[9].setText("-");    // txtBkAbout        
             lblBkErrSucc.setVisible(false);
-        }//GEN-LAST:event_btnBkAddActionPerformed
+        }
 
-        private void btnBkIssueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
+        private void btnBkIssueActionPerformed(java.awt.event.ActionEvent evt) {
         // This method will invoked when All the Fields are filled and Submit Clicked to create new Book(s)...
             
             try {
@@ -4766,7 +4766,190 @@ public class HomeFrame extends javax.swing.JFrame {
             } catch (Exception e) {
 
             }
-        }//GEN-LAST:event_btnBkIssueActionPerformed
+        }
+        private void btnBkAddSaveActionPerformed(java.awt.event.ActionEvent evt) {
+	// This method will run when New Book data was entered and submitted to Save...
+	
+        String bkName = txtBkName.getText();
+        String bkType = txtBkType.getText();
+        String bkRack = txtBkRack.getText();
+        String bkAuth1 = txtBkAuth1.getText();
+        String bkPub = txtBkPub.getText();
+        String bkQty = txtBkQty.getText();
+        String bkPrice = txtBkPrice.getText();
+        String bkPages = txtBkPages.getText();
+        String bkAuth2 = txtBkAuth2.getText();
+        String bkAbout = txtBkAbout.getText();
+        int validNo = 0;
+		
+        Connection con = null;
+        CallableStatement st = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        int newAccId = 0;
+        
+        try {
+            // Checking For Empty Feilds ...
+            if (isEmptyFields(allBkAddTxt) == true) {
+                lblBkErrSucc.setForeground(Color.red);
+                lblBkErrSucc.setVisible(true);
+                throw new Exception("OOPs... Some Fields are Empty.");  // Err_msg
+
+                // Checking For Valid Feilds ...
+            } else if ((validNo = isInvalidBkAddFields()) != 0) {
+                //allBkAddTxt = new JTextField[]{txtBkName,txtBkType,txtBkRack,txtBkAuth1,txtBkPub,txtBkQty,
+                //              txtBkPrice,txtBkPages,txtBkAuth2,txtBkAbout};
+                lblBkErrSucc.setForeground(Color.red);
+                lblBkErrSucc.setVisible(true);
+                throw new Exception("OOPs... Some Fields are Invalid.");  // Err_msg
+
+                // Inserting Feilds Data ...
+            } else {
+                con = getDbConnObj();
+                if (con == null) {
+                    lblBkErrSucc.setForeground(Color.red);
+                    lblBkErrSucc.setVisible(true);
+                    throw new Exception("OOPs... Something Went Wrong.Retry");  // Err_msg
+                }
+                int pg = Integer.parseInt(bkPages);
+                int rack = Integer.parseInt(bkRack);
+                int qty = Integer.parseInt(bkQty);
+                double price = Double.parseDouble(bkPrice);
+                int countedAccIds = -1, maxAccNums = 100 + qty;
+
+                String sql = "Select count(distinct b_acc_id) as totalDistinctBooks from tbl_book_info ";
+                stmt = con.createStatement();
+                rs = stmt.executeQuery(sql);
+
+                try {
+				// Pointer now points from Row = -1 to Row = 0
+                    rs.next();
+                    countedAccIds = rs.getInt("totalDistinctBooks");
+                    p(countedAccIds + " records are in tbl_book_info <--2)");
+                } catch (Exception e) {
+                    lblBkErrSucc.setForeground(Color.red);
+                    lblBkErrSucc.setVisible(true);
+                    showMsgOnLbl("OOPs... Something went Wrong.Retry !", lblBkErrSucc);
+                    return;
+                }
+                // Initially, newAccId = 10001, after 3 rows newAccId = 10001 + 3:=> newAccId = 10004
+                newAccId = (10001 + countedAccIds);
+
+                sql = "INSERT INTO `tbl_book_info`(`b_acc_id`, `b_name`, `b_qty`, `b_type`, `b_auth1`, `b_auth2`,`b_pub`, `b_pages`, `b_rack`, `b_price`, `b_about`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+                con = getDbConnObj();
+                PreparedStatement stmtPrep = con.prepareStatement(sql);
+                stmtPrep.setInt(1, newAccId);
+                stmtPrep.setString(2, bkName);
+                stmtPrep.setInt(3, qty);
+
+                stmtPrep.setString(4, bkType);
+                stmtPrep.setString(5, bkAuth1);
+
+                stmtPrep.setString(6, bkAuth2);
+                stmtPrep.setString(7, bkPub);
+
+                stmtPrep.setInt(8, pg);
+                stmtPrep.setInt(9, rack);
+
+                stmtPrep.setDouble(10, price);
+                stmtPrep.setString(11, bkAbout);
+
+                int affectedRows = -1;
+                try {
+                    stmtPrep.execute();
+
+                } catch (Exception e) {
+                    p("Exception occured 9020,e.getMessage()" + e.getMessage());
+					affectedRows=0;
+                }
+                p("4) Exe..d sql , aff = " + affectedRows);
+                if (affectedRows == 0) {
+                    lblBkErrSucc.setForeground(Color.red);
+                    lblBkErrSucc.setVisible(true);
+                    p("5) could not add Book... throw");
+                    throw new Exception("OOPs, Could Not Add Book...Retry !");
+                } else {
+                    // Till Now A new Book is Added in   Books Information Table     ...
+                    // ... Now insert the Copies (Qty.) in 'Books Table->tbl_books' by calling a Procedure 'insBooks(?,?)' ...                    
+					
+                    st = null;
+                    st = con.prepareCall("{call insBooks(?,?)}");                    
+
+                    for(int i = 1; i <= qty; i++){
+                    // By Default Each books Accession Num starts with 101 ...
+						int accNum = 100 + i;
+
+                        st.setInt(1, newAccId);
+                        st.setInt(2, accNum);
+                        st.addBatch();
+                    }
+
+                    int[] result = st.executeBatch();
+
+                    if (result.length != qty) {
+				    //  All Copies could not Saved...
+					
+                        lblBkErrSucc.setForeground(Color.red);
+                        lblBkErrSucc.setVisible(true);
+                        throw new Exception("OOPs, Only " + (result.length) + " books saved, Retry with "
+                                + (qty - result.length) + " Qty of '" + bkName + "'");
+                    } else {
+                        lblBkErrSucc.setForeground(new Color(20, 180, 20));
+                        lblBkErrSucc.setVisible(true);
+                        showMsgOnLbl("Great...Book '" + bkName + "'(" + bkQty + ") Saved Successfully.", lblBkErrSucc);
+                        clearFields(allBkAddTxt);
+                    }
+                }
+            }
+        } catch (Exception e) {
+		// Showing Feedback of Book saving Process...
+            showMsgOnLbl(e.getMessage(), lblBkErrSucc);
+        } finally {
+            try {
+                st.close();
+                stmt.close();
+                rs.close();
+                con.close();
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+    private void btnBkShowActionPerformed(java.awt.event.ActionEvent evt) {
+    // This Panel will visible when 'Book Show' button will display...
+		showOnlyPanel("pnlBkShow");
+
+        lblBkShowErr.setVisible(false);
+        JLabel[] allShowBkSuccLbl = {lblBkShowTotalBk, lblBkShowNBks,
+            lblBkShowBkQty, lblBkShowNBkQty,
+            lblBkShowBkStsA, lblBkShowNBkStsA,
+            lblBkShowBkStsI, lblBkShowNBkStsI,
+            lblBkShowBkStsR, lblBkShowNBkStsR
+        };
+
+        for (JLabel temp : allShowBkSuccLbl) {
+            temp.setForeground(new Color(20, 180, 20));
+            temp.setVisible(true);
+        }
+        try {
+            listBkShow.setModel(
+                    new javax.swing.AbstractListModel<String>() {
+                String[] strings = getBooksRecords();
+
+                public int getSize() {
+                    return strings.length;
+                }
+
+                public String getElementAt(int i) {
+                    return strings[i];
+                }
+            }); // Anonymouse class concept is used here, an Obj of javax.swing.AbstractListModel<String> was created and passed...
+        } catch (Exception e) {
+
+      }
+   }
 }
 
 
