@@ -5387,7 +5387,146 @@ public class HomeFrame extends javax.swing.JFrame {
         pnlBkDelE_m.setVisible(false);
         pnlBkDelE_o.setVisible(true);
     }
+	
+    private void btnMAdd_submitActionPerformed(java.awt.event.ActionEvent evt) {//  This method is to Add the Member...
+	
+        try {
+            boolean issueBkAfterRegister = false;
+            String mName = txtMAdd_Name.getText();
+            String mPh1 = txtMAdd_Ph1.getText();
+            String mPh2 = txtMAdd_Ph2.getText();
+            String mAddr = txtMAdd_Addr.getText();
+            String mClass = txtMAdd_Class.getText();
+            String mRno = txtMAdd_Rno.getText();
+            Calendar cd = Calendar.getInstance();	// Todays' Date like: "Wed Jun 12 10:38:59 PDT 2019"
+            String day_mon_date_year = getDate_DyDtMnYr(cd);	// Returns like : "Jan 29,2019";
+            String dbIns = getDbInsertableDate(day_mon_date_year);
+            int selInd = comboMAdd.getSelectedIndex();
+            String[] comboItems = {"Select type", "Student", "Teacher"};
+
+            Connection con = getDbConnObj();
+            Statement st = null;
+            PreparedStatement pst = null;
+            ResultSet rs = null;
+
+            if (con == null) 
+                throw new Exception("OOPs... Connection Error, Retry!");
+            
+
+            if (selInd == 0) // "Member Type Not Selected"
+                throw new Exception("OOPs... Some fields Not Selected !");            
+
+            if (mName == null || mName.length() == 0
+                    || mPh1 == null || mPh1.length() == 0
+                    || mAddr == null || mAddr.length() == 0) 
+                throw new Exception("OOPs... Some fields are Empty !");
+            
+
+            if (!mName.matches("^[a-zA-Z ]{3,25}+$")) 
+                throw new Exception("OOPs...Invalid Member Name,Must have 3-25 Alphabets !");
+            
+            if (!mPh1.matches("^[\\d]{10}+$")) 
+                throw new Exception("OOPs...Invalid Phone Number 1, Should have 10 Digits!");
+            
+            if (mPh2 != null && mPh2.length() > 0) 
+                if (! mPh2.matches("^[\\d]{10}+$")) 
+                    throw new Exception("OOPs...Invalid Phone Number 2, Should have 10 Digits!");
+                
+            
+            if (! mAddr.matches("^[-\\.\\w, ]{5,40}+$")) 
+                throw new Exception("OOPs,Invalid Address,Len. should in 5-40 letters & [,-.]");
+            
+
+            int rno = 0;
+            String classRnoSql = "'" + mClass + "', " + mRno;
+
+            if (comboMAdd.getSelectedIndex() == 1) {// If Student Selected...Validate Class and Rno,
+
+                if (!mClass.matches("^[a-zA-Z0-9 ]{1,10}+$")) 
+                    throw new Exception("OOPs...Invalid Data in Class !");
+                
+                if (!mRno.matches("^[\\d]{1,}+$") || mRno.equals("0")) 
+                    throw new Exception("OOPs...Invalid Roll Number given, Only Digits Allowed !");
+                
+                rno = Integer.parseInt(mRno);
+                classRnoSql = "'" + mClass + "', " + mRno + " );";
+            } else   // Faculty / Staff is going to be member of Library ...
+                classRnoSql = "null,0 );";
+            
+
+            if (chkMAdd_iss.isSelected()) 
+                issueBkAfterRegister = true;
+            
+
+            st = con.createStatement();
+            // p("One");
+            rs = st.executeQuery("Select count(*) as TotalMembers from mems");
+            // p("Two");
+            rs.next();
+            int totalMembers = rs.getInt("TotalMembers");
+            // p("Three");
+            int mId = 1001 + totalMembers;
+            String sql = "";/*This will hold like : " INSERT INTO mems (m_ID, mName, mPh1, mPh2, mAddr, mType, mJoinFee, mProtectFee, doj) " +
+													" VALUES( "+mId+", '"+mName+"', '"+mPh1+"', '"+mPh2+"', '"+mAddr+"', '"
+													+ comboItems[selInd].charAt(0)+"', 100.00 "+", 500.00, Date(sysdate()) );";				*/
+            
+            //mPh1 + "', '" + mPh2 + "', '" + mAddr
+            //       "', '" + mPh2 + "', '"
+            String ph2Handler = "";
+            if(mPh2 == null || mPh2.length() == 0 )
+                ph2Handler = "', null , '";
+            else 
+                ph2Handler = "', '"+ mPh2 +"' , '";
+            
+                sql = " INSERT INTO mems (m_ID, mName, mPh1, mPh2, mAddr, mType, mJoinFee, mProtectFee, doj, doPFee,Cls,rno) "
+                    + " VALUES( " + mId + ", '" + mName + "', '" + mPh1 + ph2Handler + mAddr + "', '"
+                    + comboItems[selInd].charAt(0) + "', 100.00 " + ", 500.00, Date(sysdate()),Date(sysdate()), " + classRnoSql;
+
+            // p("\nQuery to Add Member : sql =>\n" + sql);
+            // p(" \nmId =>" + mId + "<=\n mName =>" + mName + "<=\n mPh1 =>" + mPh1 + "<=\n mAddr=>" + mAddr + "<=\n" + "comboItems[selInd].charAt(0)=>" + comboItems[selInd].charAt(0) + "\n classRnoSql =>" + classRnoSql + "<=");
+            st = null;
+            st = con.createStatement();
+            // p("Four");
+            // p("mem add query : " + sql);
+            int aff = st.executeUpdate(sql);
+            // p("Five");
+            if (aff == 0)
+                throw new Exception("OOPs... Something went wrong, No Record Saved !");
+			
+            txtMAdd_Name.setText("");
+            txtMAdd_Ph1.setText("");
+            txtMAdd_Ph2.setText("");
+            txtMAdd_Addr.setText("");
+
+            lblMAddErr.setForeground(new Color(20, 140, 20));
+            lblMAddErr.setText("Great... '" + mName + "' is a Member Now, Member Id = '" + mId + "'");
+
+            if (issueBkAfterRegister) {
+                showIssPanel(mName, mId, comboItems[selInd].charAt(0));
+            }
+        } catch (SQLException e) {
+            // p(e.getMessage());
+            try {
+                throw new Exception("OOPs...Something went wrong,Record could not Saved !");
+            } catch (Exception ex) {
+                showMsgOnLbl(ex.getMessage(), lblMAddErr);
+            }
+        } catch (Exception e) {
+            showMsgOnLbl(e.getMessage(), lblMAddErr);
+        }
+    }
+
+    private void btnMAdd_resetActionPerformed(java.awt.event.ActionEvent evt) {	//  Method to Reset all the fields of Add Member ...
+        comboMAdd.setSelectedIndex(0);
+        txtMAdd_Name.setText("");
+        txtMAdd_Ph1.setText("");
+        txtMAdd_Ph2.setText("");
+        txtMAdd_Addr.setText("");
+        chkMAdd_iss.setSelected(false);
+        lblMAddErr.setText("");
+
+    }
+
+
+
 }
-
-
-  
