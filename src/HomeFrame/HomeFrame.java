@@ -6089,6 +6089,82 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
             lblBkR_A_err.setText(e.getMessage());
         }
     }
+	
+    private void pnlBkI_B_chgMem3ActionPerformed(java.awt.event.ActionEvent evt) {	// Method to Prepare Book Return SubPanel A...
+        pnlBk_R_B.setVisible(false);
+        pnlBk_R_A.setVisible(true);
+        lblBkR_A_err.setForeground(new Color(255, 0, 0));
+        lblBkR_A_Data.setText("");
+        lblBkR_A_err.setText("");
+    }
+
+    private void pnlBkI_B_sub1ActionPerformed(java.awt.event.ActionEvent evt) {		// Method to Perform Action when Return Book_SubPnl_B_Submit Clicked ...
+        
+        String[] arrBkRet;
+        int selInd = listBkR_B.getSelectedIndex();
+        arrBkRet = (listBkRet.get(selInd)).split("([\\^\\^\\^]+)");
+        // split("[^^^]+") = "1002   Shubhu   T   10002   101   Cpp Book   Kallo   Jun 21,2019   Jul 22,2019   Jul 29,2019  -7  ";
+        //         temp     [   0       1     2     3      4        5        6          7             8              9      10  ];
+        //                        p("----> Return Books : Next Clicked - 0)");
+
+		//  When Selected item of List is going to Return with checking All Conditions, check conditions in ==> public void setBkRetListLabels(int selInd)
+        if (pnlBkI_B_sub1.getText().equals("Return")) {
+            try {
+			//  p("if(pnlBkI_B_sub1.getText().equals(\"Submit\" == true");
+                Connection con = getDbConnObj();
+                if (con == null) {
+                    throw new Exception("OOPs... Connection Error !");
+                }
+                Statement st = con.createStatement();
+			//  String sql = "set autocommit = 0;savepoint insRetDt;Update Bktrans set m_actRetDt = Date(sysdate()) where m_id = "+ Integer.parseInt(arrBkRet[0]) +" and b_acc_id = "+ Integer.parseInt(arrBkRet[3]) +" and accno = "+ Integer.parseInt(arrBkRet[4]) +";";
+			//  	Here 'savepoint abc;'   is NOT executeUpdate() type ...
+                String sql = "Update Bktrans set m_actRetDt = Date(sysdate()) where m_id = " + Integer.parseInt(arrBkRet[0]) + " and b_acc_id = " + Integer.parseInt(arrBkRet[3]) + " and accno = " + Integer.parseInt(arrBkRet[4]) + ";";
+                int aff = -2;
+			//  p("\nReturn Books : Next Clicked - 1)\n "+sql +"\n\t ");
+                aff = st.executeUpdate(sql);
+			//  p("and Update Bktrans -->> aff0 = "+aff+"\n");
+                if (!(aff > 0)) {
+                    throw new Exception("OOPs... Could not Perform 'Return Book', Retry !");
+                } else {
+                    aff = -3;
+                    sql = "UPDATE tbl_books set status = 'A' where accid = " + Integer.parseInt(arrBkRet[3]) + " and accno = " + Integer.parseInt(arrBkRet[4]) + " and status = 'I';";
+				// p("\nReturn Books : Next Clicked - 2)\n "+sql +"\n\t");
+                    st = con.createStatement();
+                    aff = st.executeUpdate(sql);
+				// p("and Update Bktrans==> aff1 = "+aff+"\n");
+                    if (!(aff > 0)) {
+                        throw new Exception("OOPs... Could not Perform 'Return Book', Retry !");
+                    } else {
+                        lblBkR_A_err.setForeground(new Color(20, 140, 20));
+                        lblBkR_A_Data.setText("");
+                        pnlBk_R_B.setVisible(false);
+                        pnlBk_R_A.setVisible(true);
+                        lblBkR_A_err.setText("Great! " + arrBkRet[1] + "[ " + arrBkRet[0] + " ] returned '" + arrBkRet[5] + "'.");
+					// throw new Exception("Great, "+arrBkRet[1]+"[ "+ arrBkRet[0] +" ] returned ");
+                    }
+                }
+            } catch (Exception e) {
+                // p("??? Exception => " + e.getMessage());
+                lblBkR_B_err.setVisible(true);
+                showMsgOnLbl(e.getMessage(), lblBkR_B_err);
+            }
+        } else {
+/*		  Else When Selected Item of List is going to Return book Late : check conditions in ==> public void setBkRetListLabels(int selInd)
+		    Fine Panel ko Manage on ReturnPnl_SubPnl_C ...
+
+						 listBkRet.get( 0 )= "1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^Jun 21,2019^^^Jul 22,2019^^^2019-08-01^^^10";
+						arr=split("[^^^]+")= "1002   Shubhu   T   10002   101   Cpp Book   Kallo   Jun 21,2019   Jul 22,2019   Jul 29,2019  -7  ";
+								   temp     [   0       1     2     3      4        5        6          7             8              9      10  ];
+					 
+		   calling a method() to set pnlBkR_C and pnlBkR_C_subPnl2 's Labels		*/
+		   
+            setPnlB_R_C_1();
+            lblRetBook.setVisible(false);
+            pnlBk_R_B.setVisible(false);
+            pnlBk_R_C.setVisible(true);
+            lblBkR_C_err.setText("");
+        }
+    }
 
 	
 }// Class Ended...
