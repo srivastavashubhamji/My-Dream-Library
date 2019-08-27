@@ -5798,5 +5798,123 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
         lblBkI_D_err.setVisible(false);
     }
 
+	private void btnBkShow_Go3ActionPerformed(java.awt.event.ActionEvent evt) {	  // Method to Store Book Issue Details...
+        /*
+			When IssuePanel_D FinalSubmit --> What will Happen ...?
+			
+			Tables Affected  :  1) tbl_books
+							    2) bktrans
+			Steps:				
+				1) Select any 1 ACCNO from tbl_books where tbl_books.accid = GIVEN_ACCID  and  Status = 'A' 				
+				2) Update tbl_books set Status = 'I' which has tbl_books.accid = GIVEN and tbl_books.accno = FETCHED PREVIOUSLY in step 1
+				3) bktrans me Insert karo pnl_D_Labels ki 
+				3) Insert into bktrans ...
+					Attributes of Table 'bktrans': 
+					--------------------------------
+						m_id , b_acc_id , accno , m_issDt  
+						,  m_propDt  ,  m_actRetDt , m_fine , m_delayCause , m_nPropDt 
+					Labels of Issue_SubPanel_D  : 
+					--------------------------------
+						lblBk_I_D_mId , lblBk_I_D_bId , accno = fetched Prev , dbInsertableDate( lblBk_I_D_bIssDt ) 
+						,  dbInsertableDate( lblBk_I_D_bRetDt ) , NULL , NULL , NULL , NULL
+			Solution:
+				1) -.-
+					Select accno from tbl_books where accid = GIVEN_Accid and status = 'A' limit 1;
+				2) -.-
+					Update tbl_books set status = 'I' where accid = 10001 limit 1;
+				3) -.-
+					insert into bktrans ( m_id, b_acc_id, accno, m_issDt, m_propDt ) 
+							value(1003,10001,101, '2019-06-23' ,'2019-07-25' );
+         */
+        try {
+            p("1");
+            Connection con = getDbConnObj();
+            if (con == null) {
+                throw new Exception("OOPs... Connection Error, Check and Retry !");
+            }
+            Statement st = con.createStatement();
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
 
-}
+            int issueAccno, issueAccid = Integer.parseInt(lblBk_I_D_bId.getText());
+
+            String strMid = lblBk_I_D_mId.getText();                           // "[S] 1001"
+
+            int mId = Integer.parseInt(strMid.substring(4));                   // "1001"
+            Calendar cd = Calendar.getInstance();
+            p("2 - cd = Calendar.getInstance() : " + cd.getTime());
+            cd.add(Calendar.DATE, 31);
+            cd = getPossible_DateOfRet(cd);                                  // "No Sunday on Returning Day.
+            p("3 - cd = getPossible_DateOfRet( cd ) : " + cd.getTime());
+            String dyddmmyy = getDate_DyDtMnYr(cd);                          // "Last Date 'Tue Jan 23,1999' "
+            p("4 - String dyddmmyy = getDate_DyDtMnYr( cd ) = " + dyddmmyy);
+            dyddmmyy = getDbInsertableDate(dyddmmyy);                        // "Last Date '1999-01-23' "
+            p("5 - dyddmmyy = getDbInsertableDate( dyddmmyy ) = " + dyddmmyy);
+            String lastDate = lblBk_I_D_bRetDt.getText();
+
+            String sql = "Select accno from tbl_books where accid = " + issueAccid + " and status = 'A' limit 1";
+            rs = st.executeQuery(sql);
+            p("---> Step 1 query :\n" + sql);
+            if (rs == null || rs.next() == false) {
+                throw new Exception("OOPs... Some Data is Currpted( Err Id : 9001 )!");
+            }
+            issueAccno = rs.getInt("accno");        //  Step 1 Accomplished ...            
+            rs = null;
+
+//            sql = "Update tbl_books set status = 'I' where accid = "+ issueAccid + " and accno = "+ issueAccno;            
+            sql = "Update tbl_books set status = 'I' where accid = ? and accno = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, issueAccid);
+            pstmt.setInt(2, issueAccno);
+
+            if (pstmt.executeUpdate() == 1) {
+                p("+++> Step 2 query :\n" + sql + "\n\t? 1->" + issueAccid + ", ?2 ->" + issueAccno);
+            } else {
+                throw new Exception("OOPs 2...Could not Save Data, Retry !");
+            }
+//            int aff = st.executeUpdate(sql);    // aff will have 1 if Update Query Executed Successfully
+
+//            sql = "Insert into bktrans ( m_id, b_acc_id, accno, m_issDt, m_propDt ) " +
+//                  "value("+ mId +","+ issueAccid +","+ issueAccno +
+//                             ", date(sysdate()) ,'"+ dyddmmyy +"' );";          //  Insert into bktrans ( m_id, b_acc_id, accno, m_issDt, m_propDt ) value(1001,10003,102, date(sysdate()) ,'2019-21-22' );
+            sql = "Insert into bktrans ( m_id, b_acc_id, accno, m_issDt, m_propDt ) "
+                    + "value(?,?,?, date(sysdate()) ,? );";          //  Insert into bktrans ( m_id, b_acc_id, accno, m_issDt, m_propDt ) value(1001,10003,102, date(sysdate()) ,'2019-21-22' );
+            pstmt = null;
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, mId);
+            pstmt.setInt(2, issueAccid);
+            pstmt.setInt(3, issueAccno);
+            pstmt.setString(4, dyddmmyy);
+
+            if (pstmt.executeUpdate() == 1) {
+                pnlBkI_D.setVisible(false);
+                pnlBkI_B.setVisible(false);
+                pnlBkI_C.setVisible(false);
+                pnlBkI_A.setVisible(true);
+                lblBkI_A_err.setVisible(true);
+                lblBkI_A_err.setForeground(new Color(20, 140, 20));
+                p(">>>> All Done ...\nBktrans Aff.Rows== ");
+                lblBkI_A_err.setText("Great! Book[ " + issueAccid + " ] issued to Mem[ " + mId + " ], Last Date: ["
+                        + dyddmmyy + "] ");
+                // Reset Issue_SubPanel_B fields...                
+                txtBkI_B_data.setText("");
+                comboBkI_B.setSelectedIndex(0);
+                p("***> Step 3 query :\n" + sql + " ?s = " + mId + "_" + issueAccid + "_" + issueAccno + "_" + dyddmmyy);
+            } else {
+                throw new Exception("OOPs 3...Could not Save Data, Retry !");
+            }
+//            aff = st.executeUpdate(sql);    // aff will have 1 if Update Query Executed Successfully
+//            p("\nbktrans Aff.Rows== "+aff);
+
+        } catch (Exception e) {
+            lblBkI_D_err.setVisible(true);
+            lblBkI_D_err.setText(e.getMessage());
+        }
+    }
+
+    private void btnBkI_A_showActionPerformed(java.awt.event.ActionEvent evt) {	  // Method to get Width and Height...
+        p("pnlBkIssue bounds =: x=" + pnlBkIssue.getX() + ", y=" + pnlBkIssue.getY() + ", w=" + pnlBkIssue.getWidth() + ", h=" + pnlBkIssue.getHeight());
+    }//btnBkI_A_showActionPerformed
+
+
+}// Class Ended...
