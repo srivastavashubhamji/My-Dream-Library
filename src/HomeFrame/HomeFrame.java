@@ -5916,5 +5916,38 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
         p("pnlBkIssue bounds =: x=" + pnlBkIssue.getX() + ", y=" + pnlBkIssue.getY() + ", w=" + pnlBkIssue.getWidth() + ", h=" + pnlBkIssue.getHeight());
     }//btnBkI_A_showActionPerformed
 
+		
+    private void comboBkI_BActionPerformed(java.awt.event.ActionEvent evt) {	  // Method to set Tool Tip for Search Box...
+
+        int selInd = comboBkI_B.getSelectedIndex();
+        comboBkI_B.setForeground(Color.red);
+        switch (selInd) {
+            // Select Condition , Id , Name , Type  , Author 
+            //          0       ,  1 ,   2  ,   3   ,   4            
+            case 0:
+                txtBkI_B_data.setToolTipText("Select The Search Condition ...");
+                break;
+            case 1:
+                comboBkI_B.setForeground(Color.green);
+                txtBkI_B_data.setToolTipText("Enter the Book Id");
+                break;
+            case 2:
+                comboBkI_B.setForeground(Color.green);
+                txtBkI_B_data.setToolTipText("Enter First Few Characters of the Name of the Book");
+                break;
+            case 3:
+                comboBkI_B.setForeground(Color.green);
+                txtBkI_B_data.setToolTipText("Enter First Few Characters of the Type of the Book");
+                break;
+            case 4:
+                comboBkI_B.setForeground(Color.green);
+                txtBkI_B_data.setToolTipText("Enter First Few Characters of the Author of the Book");
+                break;
+        }
+    }
+
+    private void listBkShow1ValueChanged(javax.swing.event.ListSelectionEvent evt) {// Method to Update the Labels of IssuePanel's SubPanel_C According to --> Element of List is Selected
+        setComps_Issue_C_OnListChange();
+    }
 
 }// Class Ended...
