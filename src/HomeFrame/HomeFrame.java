@@ -5526,6 +5526,58 @@ public class HomeFrame extends javax.swing.JFrame {
         lblMAddErr.setText("");
 
     }
+    private void btnBkShow_Go1ActionPerformed(java.awt.event.ActionEvent evt) { //  This method will Check for Book and Shows Panel 'BookIssuePanel' Only if that Book is of Library...
+	
+        lblBkI_B_err.setVisible(false);
+        lblBkI_B_err.setForeground(new Color(255, 0, 0));
+        try {
+            if (txtBkI_B_data.getText() == null || txtBkI_B_data.getText().equals("")) {
+                throw new Exception("OOPs...Some Fields are Empty !");
+            } else if (comboBkI_B.getSelectedIndex() == 0) {
+                throw new Exception("OOPs...Search Condition is not Selected !");
+            } else {
+
+                // p("pnl_B 'next' clicked ,\n\t comboBkI_B.getSelectedIndex() = " + comboBkI_B.getSelectedIndex());
+				// This method -.- setBookIssue_C will Fire the Query on the Basis of SelectedIndex of ComboBox & Set FetchedData to SubPnl_C...
+                int ret = setBookIssue_C(comboBkI_B.getSelectedIndex());
+
+                if (ret == -1)     			  // -1 Refers -     // OOPs... Connection Error
+                    throw new Exception("OOPs... Connection Error, Retry Later !");
+                else if (ret == 0)  		  //  0 Refers -     // OOPs... Data could not Fetched Properly , Retry !
+                    throw new Exception("OOPs...Data could not Fetched Properly, Retry (Check Search Condition) !");
+                else if (ret == -2)		  	  // -2 Refers- OOPs, No such "Select Condition, Id, Name, Type, Author" Found !
+                    throw new Exception("OOPs... No such Book's Data Found, (Check Search Condition) !");
+                else if (ret == -3) {   	  // -3 Refers- OOPs,This book is Unavailable, Visit on 
+                    Connection c = getDbConnObj();
+                    if (c == null) {
+                        throw new Exception("OOPs... Connection Error");      // OOPs... Connection Error
+                    }
+                    Statement s = c.createStatement();
+                    String q = "Select (select date_format( m_propDt ,'%b %d,%Y')) LastDate from bktrans where b_acc_id = " + txtBkI_B_data.getText() + " order by m_propDt limit 1;";
+                    ResultSet r = s.executeQuery(q);
+                    if (r == null || r.next() == false) {
+                        throw new Exception("OOPs... No Books Available with this Book Id");      // OOPs... Connection Error
+                    }						  // p("--> Reached : No Books Available for this Book Id\nQuery ->\n"+q);
+                    throw new Exception("OOPs... No Books Available with this Book Id! [ Visit On " + r.getString("LastDate") + " ]");
+                } else if (ret == 1) {  	  //  1 Refers - EveryThing is Done, Display Next Panel
+                    pnlBkI_A.setVisible(false);
+                    pnlBkI_D.setVisible(false);
+                    pnlBkI_B.setVisible(false);
+                    pnlBkI_C.setVisible(true);
+                } else {
+                    throw new Exception("OOPs...Something Went Wrong, Retry !");
+                }
+            }
+        } catch (Exception e) {
+            lblBkI_B_err.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkI_B_err);
+        }
+    }
+
+    private void btnBkD_back3ActionPerformed(java.awt.event.ActionEvent evt) { 	//  Method To Print Logo When Book Delete SubPanel D's BtnBack is Clicked	
+        showOnlyPanel("pnlLogo");
+    }
+
 
 
 
