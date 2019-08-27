@@ -5749,6 +5749,54 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
         lblBkI_B_err.setVisible(false);
     }
 
+	private void pnlBkI_B_chgMem2ActionPerformed(java.awt.event.ActionEvent evt) {// Method to Display Book Issue SubPanel 'C'
+        pnlBkI_D.setVisible(false);
+        pnlBkI_A.setVisible(false);
+        pnlBkI_B.setVisible(false);
+        pnlBkI_C.setVisible(true);
+    }
+	
+    private void btnBkShow_Go2ActionPerformed(java.awt.event.ActionEvent evt) {	  // Method to Set Fields and Display Book_Issue SubPanel 'D'
+	//    Declarations: public String getDate_DyDtMnYr( Calendar cd )
+	//                  public String getDbInsertableDate( String day_mon_date_year )
+	//                  public Calendar getPossible_DateOfRet( Calendar cd )
+        String dateOfIssue, dateOfReturn;
+        Calendar cd = Calendar.getInstance();
+        dateOfIssue = getDate_DyDtMnYr(cd).substring(4);
+        cd.add(Calendar.DATE, 31);                                       // Adding 31 days to Current Date
+        cd = getPossible_DateOfRet(cd);                               // This Method Makes sure that There must be no "Sunday" on Return Date
+        dateOfReturn = getDate_DyDtMnYr(cd).substring(4);
+
+        String bDoi = lblBk_I_C_mDoj.getText();
+        String mNm = lblBk_I_C_mName.getText();
+        String mId = lblBk_I_C_mId.getText();
+
+        String bId = lblBk_I_C_bId.getText();
+        String bNm = lblBk_I_C_bName.getText();
+        String bAuth = lblBk_I_C_bAuth.getText();
+        String bType = lblBk_I_C_bType.getText();
+        String bAvb = lblBk_I_C_bAvb.getText();
+
+		// Setting IssuePanel_C Labels' Data to IssuePanel_D_Labels
+        lblBk_I_D_mId.setText(mId);
+        lblBk_I_D_mNm.setText(mNm);
+        lblBk_I_D_mAuth.setText(bAuth);
+        lblBk_I_D_bId.setText(bId);
+        lblBk_I_D_bNm.setText(bNm);
+        lblBk_I_D_bType.setText(bType);
+
+        lblBk_I_D_bNm2.setText(bNm);
+        lblBk_I_D_mNm2.setText(mNm);
+        lblBk_I_D_bIssDt.setText(dateOfIssue);
+        lblBk_I_D_bRetDt.setText(dateOfReturn);
+        // set Issue Date and Return Date of IssuePanel_D
+
+        pnlBkI_B.setVisible(false);
+        pnlBkI_C.setVisible(false);
+        pnlBkI_A.setVisible(false);
+        pnlBkI_D.setVisible(true);
+        lblBkI_D_err.setVisible(false);
+    }
 
 
 }
