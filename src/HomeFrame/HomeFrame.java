@@ -5594,6 +5594,160 @@ public class HomeFrame extends javax.swing.JFrame {
         showOnlyPanel("pnlLogo");
     }
 
+	
+    private void pnlBkI_A_sub1ActionPerformed(java.awt.event.ActionEvent evt) {  // Method to check and Display which Member has issued which Book(s)['Books' is for Faculties only ]...
+        try {
+            lblBkI_A_err.setForeground(new Color(210, 10, 10));
+            Connection con = getDbConnObj();
+            if (con == null)
+                throw new Exception("OOPs... Connection Error, Check & Retry !");
+            
+            Statement st = null;
+            ResultSet rs = null;
+            String mId = lblBkI_A_Data.getText();
+
+// Checking if Input a Valid Member's Id or Not ...
+            if (mId == null || mId.length() == 0) 
+                throw new Exception("OOPs...Member Id is not Entered !");            
+
+            if (!mId.matches("^[\\d]{4,}+$")) 
+                throw new Exception("OOPs...Invalid Member Id is Entered !");
+            
+
+// This Query will Returns AllDetails(Fields) of This Member IF the Given M_id exists in All_Member_Table( mems )
+            int memId = Integer.parseInt(mId);
+            String sql = "Select * from mems where m_Id = " + memId;
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            if (rs == null || rs.next() == false) 
+                throw new Exception("OOPs...This Member does not Exists, Retry!");
+            
+            // p("Pnl A : 1 Member "+mId+" Exists,");
+            // Checking Member Status ...(Active / Inactive ) :
+            if (rs.getString("mStatus").equalsIgnoreCase("I")) //Inactive
+                throw new Exception("OOPs... Member's Account is Currently Disabled !");
+//                p("--In Issue Pnl A : Submitted :-> pnlBkI_A_sub1ActionPerformed(...) called :\n\t OOPs... Member's Account is Currently Disabled ");
+            
+            // p("Pnl A : 2 Active Member,");
+            sql = "Select B.m_id M_Id, C.mName Member, C.mType TypeOfMember, B.b_acc_id BookId, A.b_Name Book,  "
+                    + " date_format(B.m_issDt,'%b %d,%Y') IssuedOn, B.m_propDt LastDate "
+                    + " from tbl_book_info A, bktrans B, mems C where B.m_id = " + memId + " and B.m_actRetDt is null "
+                    + " and B.m_id = C.m_id and B.b_acc_id = A.b_acc_id order by B.m_id desc;";
+
+            // p(sql);     //will Print : Select B.m_id M_Id, C.mName Member, C.mType TypeOfMember, B.b_acc_id BookId, A.b_Name Book,  date_format(B.m_issDt,'%b %d,%Y') IssuedOn, B.m_propDt LastDate from tbl_book_info A, bktrans B, mems C where B.m_id = 1002 and B.m_actRetDt is null and B.m_id = C.m_id and B.b_acc_id = A.b_acc_id order by B.m_id desc;
+/*
+This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> If He had Not Returned any Book...
+                                                                           ---> Else Empty set
+ 
++------+--------+--------------+--------+-------------+------------+------------+
+| M_Id | Member | TypeOfMember | BookId | Book        | IssuedOn   | LastDate   |
++------+--------+--------------+--------+-------------+------------+------------+
+| 1002 | Shubhu | T            |  10003 | VB.net book | Jun 11,2019| 2019-07-12 |
+| 1002 | Shubhu | T            |  10004 | DBMS        | Mar 21,2019| 2019-03-24 |
++------+--------+--------------+--------+-------------+------------+------------+
+                                        OR
++------+--------+--------------+--------+-------------+------------+------------+
+| M_Id | Member | TypeOfMember | BookId | Book        | IssuedOn   | LastDate   |
++------+--------+--------------+--------+-------------+------------+------------+
+| 1004 | Lalita | S            |  10001 | Java book   | 2019-04-21 | 2019-05-22 |
++------+--------+--------------+--------+-------------+------------+------------+             */ 
+            rs = null;
+            rs = st.executeQuery(sql);
+
+            if (rs == null) // When Query Not Executed Properly
+                throw new Exception("OOPs... Could not Found anything, Retry!");
+
+            if (rs.next() == false) {       // When Member Came to Issuing Book For 1st Time / Returned Each Bk : Valid
+                sql = "Select m_Id,mName Member,mType TypeOfMember from mems where m_id = " + memId;
+                rs = null;
+                rs = st.executeQuery(sql);
+                rs.next();
+                // p("issueBook(rs) 1st timer or Valid member");
+
+                issueBook(rs);               // When Member Came to Issuing Book For 1st Time / Returned Each Bk : Valid
+                pnlBkI_B.setVisible(true);
+                pnlBkI_C.setVisible(false);
+                pnlBkI_D.setVisible(false);
+                pnlBkI_A.setVisible(false);
+                lblBkI_B_err.setForeground(new Color(210, 10, 10));
+                lblBkI_B_err.setVisible(false);
+                throw new Exception("");    // Sent this new Users Details to SubPnl B , No need to go for Below code Execution
+            }
+//  Else This Member had Already Taken A Book, But not Returned,( Now Check Type : is He 'S'tudent  or 'T'eacher)
+//      If('S'tudent -> Max. Num. of Not Returned Book = 0), // 
+//      If('T'eacher -> Max. Num. of Not Returned Book = 2)
+            int nBooksNotRet = 0;
+            String rsMid = "";
+            String rsMember = "";
+            String rsTypeOfMember = "";
+            String rsBookId = "";
+            String rsBook = "";
+            String rsIssuedOn = "";
+            String rsLastDate = "";
+            do {
+                // p("for "+nBooksNotRet+" -> 0");
+                rsMid = "" + rs.getInt("M_Id");
+                // p("for "+nBooksNotRet+" -> 0.1");
+                rsMember = rs.getString("Member");
+                // p("for "+nBooksNotRet+" -> 0.2");
+                rsTypeOfMember = "" + rs.getString("TypeOfMember");
+                // p("for "+nBooksNotRet+" -> 0.3");
+                rsBookId = "" + rs.getInt("BookId");
+                // p("for "+nBooksNotRet+" -> 0.4");
+                rsBook = rs.getString("Book");
+                // p("for "+nBooksNotRet+" -> 0.5");
+                rsIssuedOn = rs.getString("IssuedOn");
+                // p("for "+nBooksNotRet+" -> 0.6");
+                rsLastDate = rs.getString("LastDate");
+                // p("for "+nBooksNotRet+" -> 0.7");
+                nBooksNotRet++;
+
+                // p("Took Book- Row "+nBooksNotRet+" Result =: "+rsMid+" ," +rsMember+" ,"  +rsTypeOfMember+" ," + rsBookId+" ," + rsBook+" ," + rsIssuedOn+" ," + rsLastDate+" ," );                
+            } while (rs.next());
+//  Note : rs'Cursor Reached After_Last Record
+
+            // p("1");
+            if (rsTypeOfMember.equalsIgnoreCase("S")) {
+                String msg = "OOPs! " + rsMember + "[" + rsMid + "] took " + "(1) [" + rsBookId + "] " + rsBook + " on " + rsIssuedOn;
+                // p("1.1");
+                showBtnOfIssue_A(btnBkI_A_show, rs);     // This Btn Help to Show Details which Book(s) Not Return
+                throw new Exception(msg);
+            } else if (rsTypeOfMember.equalsIgnoreCase("T") && nBooksNotRet < 2) {
+                String msg = "Warn! " + rsMember + "[" + rsMid + "] took " + "1) [" + rsBookId + "] " + rsBook + " on " + rsIssuedOn;
+                showBtnOfIssue_A(btnBkI_A_show, rs);     // This Btn Help to Show Details which Book(s) Not Returned by the Teacher
+                // p("1.2"); 
+
+// When Member Teacher Came to Issue Book For him (might took less than Max.Limit_2 ) :Valid
+                issueBook(rs);
+
+                pnlBkI_C.setVisible(false);
+                pnlBkI_D.setVisible(false);
+                pnlBkI_A.setVisible(false);
+                pnlBkI_B.setVisible(true);
+                lblBkI_B_err.setForeground(new Color(20, 140, 20));
+                lblBkI_B_err.setVisible(true);
+                lblBkI_B_err.setText(msg);
+            } else {
+// When Member Teacher Came to Issue Book For him Already got 2 Books from Library    :Invalid
+                String msg = "OOPs! " + rsMember + "[" + rsMid + "] took " + nBooksNotRet + " Books,1) [" + rsBookId + "] " + rsBook + "' on " + rsIssuedOn;
+                showBtnOfIssue_A(btnBkI_A_show, rs);     // This Btn Help to Show Details which Book(s) Not Return, Currently only print output on Editor
+                // p("1.3");
+                throw new Exception(msg);
+            }
+        } catch (Exception e) {
+            // p("2");
+            lblBkI_A_err.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkI_A_err);
+        }
+    }//GEN-LAST:event_pnlBkI_A_sub1ActionPerformed
+
+    private void pnlBkI_B_chgMem1ActionPerformed(java.awt.event.ActionEvent evt) {// Method to Display Book Issue SubPanel 'B'
+        pnlBkI_A.setVisible(false);
+        pnlBkI_C.setVisible(false);
+        pnlBkI_D.setVisible(false);
+        pnlBkI_B.setVisible(true);
+        lblBkI_B_err.setVisible(false);
+    }
 
 
 
