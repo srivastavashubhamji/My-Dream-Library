@@ -5577,6 +5577,22 @@ public class HomeFrame extends javax.swing.JFrame {
     private void btnBkD_back3ActionPerformed(java.awt.event.ActionEvent evt) { 	//  Method To Print Logo When Book Delete SubPanel D's BtnBack is Clicked	
         showOnlyPanel("pnlLogo");
     }
+    private void pnlBkI_B_chgMemActionPerformed(java.awt.event.ActionEvent evt) {// Method to alter the Panel...
+
+        lblBkI_A_Data.setText(txtBkI_B_mId.getText().substring(4));
+        lblBkI_A_err.setText("");
+        pnlBkI_C.setVisible(false);
+        pnlBkI_D.setVisible(false);
+        pnlBkI_B.setVisible(false);
+        pnlBkI_A.setVisible(true);
+        btnBkI_A_show.setVisible(false);
+        lblBkI_A_err.setForeground(new Color(20, 140, 20));
+
+    }
+
+    private void btnBkD_back4ActionPerformed(java.awt.event.ActionEvent evt){	 // Method to show Logo...
+        showOnlyPanel("pnlLogo");
+    }
 
 
 
