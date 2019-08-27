@@ -6167,4 +6167,20 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
     }
 
 	
+    private void btnBkD_back9ActionPerformed(java.awt.event.ActionEvent evt) {	    // Method for date / Back...
+	
+        Calendar c = Calendar.getInstance();
+        // p("Before subtraction date :" + c.getTime());
+        c.add(Calendar.DATE, -2);
+        // p("After subtraction date  :" + c.getTime());
+
+	}
+    
+	private void pnlBkI_B_chgMem4ActionPerformed(java.awt.event.ActionEvent evt) {	// Method for Book Return SubPanel B...
+        pnlBk_R_C.setVisible(false);
+        pnlBk_R_B.setVisible(true);
+        lblBkR_B_err.setText("");
+        lblRetBook.setVisible(true);;
+    }
+	
 }// Class Ended...
