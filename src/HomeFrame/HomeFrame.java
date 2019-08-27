@@ -5950,4 +5950,145 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
         setComps_Issue_C_OnListChange();
     }
 
+    private void btnBkD_back7ActionPerformed(java.awt.event.ActionEvent evt) {		// Method to show Logo Panel...
+        showOnlyPanel("pnlLogo");
+    }
+
+    private void pnlBkI_A_sub2ActionPerformed(java.awt.event.ActionEvent evt) {		// Method to fetch details of a member from Table bktrans...
+	
+        try {
+            lblBkR_A_err.setText("");
+            lblBkR_A_err.setForeground(new Color(255, 0, 0));
+            Connection con = getDbConnObj();
+            if (con == null) {
+                throw new Exception("OOPs... Connection Error, Check & Retry !");
+            }
+            Statement st = null;
+            ResultSet rs = null;
+            String mId = lblBkR_A_Data.getText();
+
+		// Checking if Input a Valid Member's Id or Not ...
+            if (mId == null || mId.length() == 0) {
+                throw new Exception("OOPs...Member Id is not Entered !");
+            }
+
+            if (!mId.matches("^[\\d]{4,}+$")) {
+                throw new Exception("OOPs...Invalid Member Id is Entered !");
+            }
+
+		// This Query will Returns AllDetails(Fields) of This Member IF the Given M_id exists in All_Member_Table( mems )
+            int memId = Integer.parseInt(mId);
+
+            String sql= "Select b.m_Id m_Id, m.mName Member, m.mType MemberType , b.b_acc_id accid, b.accno accno, "
+                            + "c.b_name Book,c.b_auth1 Author, date_format(b.m_issDt,'%b %d,%Y') issuedOn, "
+                            + "date_format(b.m_propDt, '%b %d,%Y') lastDate, date_format(Date(sysdate()),'%b %d,%Y') Today,"
+                            + "(Case when true then ( datediff( b.m_propDt , sysdate() ) ) else 0 end ) as daysDelayed , b.t_id "
+                        +"From bktrans b, mems m ,tbl_book_info c "
+                        +"Where b.m_Id = " + memId + " and b.m_actRetDt is null and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id ;";
+
+            // p("\nReturn Book SubPnl_B_sql ====> \n" + sql + "\n");                // Will Print query = Select b.m_Id m_Id, m.mName Member, m.mType MemberType , b.b_acc_id accid, b.accno accno, c.b_name Book,c.b_auth1 Author, date_format(b.m_issDt,'%b %d,%Y') issuedOn, date_format(b.m_propDt, '%b %d,%Y') lastDate, date_format(Date(sysdate()),'%b %d,%Y') Today,(Case when true then ( datediff( b.m_propDt , sysdate() ) ) else 0 end ) as daysDelayed ,b.t_id from bktrans b, mems m ,tbl_book_info c where b.m_Id = 1001 and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null;		
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            if (rs == null || rs.next() == false) {
+		//  No Records found in Bktrans table for this Member Id ...
+                rs = null;
+                sql = "Select * from mems where m_id = " + memId;
+		/*    +------+---------+------------+------+----------------+-------+----------+-------------+---------+------------+
+			  | m_Id | mName   | mPh1       | mPh2 | mAddr          | mType | mJoinFee | mProtectFee | mStatus | doj        |
+			  | 1001 | Shubham | 8601725056 |      | Ramjanki nagar | S     |   100.00 |      500.00 | A       | 2019-06-29 |
+			  +------+---------+------------+------+----------------+-------+----------+-------------+---------+------------+
+						 */
+                rs = st.executeQuery(sql);
+                if (rs == null || rs.next() == false) //  This member Doesn't Exists...
+                    throw new Exception("OOPs... This Member Id does not Exists !");
+                
+		//  Else Member Exists but didn't issued Any book to him...
+                throw new Exception("OOPs... No Books issued to This Member " + rs.getInt("m_Id") + "!");
+            }
+            /*  Output of the Query : 
+			-- ---------- When member is Late : 
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed | t_id |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| 1001 | Lala   | S          | 10003 |   101 | Cpp 1.17 | lalaji | Jun 21,2019 | Jul 22,2019 | Aug 02,2019 |         -11 |   16 |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+
+			-- ---------- When member have to Return Today :
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed | t_id |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| 1002 | Shubhu | T          | 10002 |   101 | Cpp Book | Kallo  | Jun 21,2019 | Jul 22,2019 | Jul 22,2019 |           0 |   16 |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+
+			-- ---------- When member has n Days to Return :
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed | t_id |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+			| 1002 | Shubhu | T          | 10002 |   101 | Cpp Book | Kallo  | Jun 21,2019 | Jul 22,2019 | Jul 15,2019 |           7 |  16  |
+			+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+             */
+
+            listBkRet = null;
+            listBkRet = new java.util.ArrayList<>();
+            String listValue;
+            do{
+                int delayed = rs.getInt("daysDelayed");
+                int t_id = rs.getInt("t_id");
+                String mName = rs.getString("Member"),
+                        mType = rs.getString("MemberType"),
+                        accId = "" + rs.getInt("accid"),
+                        accNo = "" + rs.getInt("accno"),
+                        bkName = rs.getString("Book"),
+                        bkAuth = rs.getString("Author"),
+                        bkIssDt = rs.getString("issuedOn"),
+                        bkLastDt = rs.getString("lastDate"),
+                        today = rs.getString("Today");
+                String sep = "^^^"; // Data Separator to Avoid 
+                //  1) Again And Again Firing Query for Setting Data on Different SubPanels of Return Panel ,
+                //  2) Processing Time Consumption...
+                // 'M_Id | Member | MemberType | accid | accno | Book | Author | issuedOn | lastDate | Today | daysDelayed | t_id stored with DataSep
+
+                listValue = memId + sep + mName + sep + mType + sep + accId + sep + accNo + sep + bkName + sep + bkAuth
+                        + sep + bkIssDt + sep + bkLastDt + sep + today + sep + delayed + sep + t_id;
+				// listValue = "\n1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^2019-06-21^^^2019-07-22^^^2019-08-01^^^10^^^17";
+                listBkRet.add(listValue);
+                // p("\n---> Details of Books not Returned : \n\t memId + sep + mName + sep + mType + sep + accId + sep + accNo +sep + bkName + sep + bkAuth + sep + bkIssDt + sep + bkLastDt + sep + today + sep + delayed\n" + listValue);
+				//                p("\n\t Global listValue(n) => "+listValue);
+            } while (rs.next());
+
+            try {
+                listBkR_B.setModel(
+                        new javax.swing.AbstractListModel<String>() {
+			// Method getIssRetBooksRecords() will Take a "ArrayList<String> Object" 
+			// and Returns String[] Array having all the Elements of ArrayList<String> Object;
+
+			// This method getRetBooksRecords() will return StrArr : which has String Objects that will display on List
+                    String[] strings = getRetBooksRecords();
+
+                    public int getSize() {
+                        /*  p2("\t (-1) listBkR_B.setModel's getSize() exe..ing"); */ return strings.length;
+                    }
+
+                    public String getElementAt(int i) { //  p2("\n(-0) listBkR_B.setModel's getElementAt() exe..ing");p2("\tValue Stored in Str Arr : ");for(String s : strings){ p2("\t"+s); }
+                        return strings[i];
+                    }
+                    //  public void p2(String msg){ System.out.println(msg); }
+                }
+                );
+            } catch (Exception e) {
+                // p("Nominal Exception - ... May be IllegalArgumentException occured ~4660 when Setting String to ReturnSubPnl_B_Listbox ,err = " + e.getMessage());
+            }
+
+            listBkR_B.setSelectedIndex(0);
+
+            pnlBk_R_A.setVisible(false);
+            pnlBk_R_B.setVisible(true);
+            lblBkR_B_err.setText("");
+        } catch (Exception e) {
+            // p("\n??? Return Book Exception occured ...");
+            lblBkR_A_err.setText(e.getMessage());
+        }
+    }
+
+	
 }// Class Ended...
