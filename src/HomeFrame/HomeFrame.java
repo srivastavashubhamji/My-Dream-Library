@@ -6443,6 +6443,14 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         txtMAdd_Rno.setText("");
     }//  
 
+    private void btnReportBackActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Back Btn of Report Panel...
+        showOnlyPanel("pnlLogo");
+    }//  
+
+    private void listBkDel_BValueChanged(javax.swing.event.ListSelectionEvent evt) {//  Method to handle Book Field value when List's selected item changes...
+        setComps_DelBk_B_OnListChange();
+    }//  
+
 	
 	
 }// Class Ended...
