@@ -7382,5 +7382,63 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
     }
 
 	
+    public void showIssPanel(String mName, int mId, char mType) {	// Shows Issue Panel...
+        showOnlyPanel("pnlBkIssue");
+        pnlBkI_A.setVisible(false);
+        pnlBkI_C.setVisible(false);
+        pnlBkI_D.setVisible(false);
+        pnlBkI_B.setVisible(true);
+
+        Calendar cd = Calendar.getInstance();	// Todays' Date like: "Wed Jun 12 10:38:59 PDT 2019"
+        String mon_date_year = getDate_DyDtMnYr(cd);	// Returns like : "Wed Jan 29,2019";
+        txtBkI_B_doi.setText(mon_date_year);
+        txtBkI_B_mNm.setText(mName);
+        txtBkI_B_mId.setText("[" + mType + "] " + mId);
+
+    }
+
+    public void showBtnOfIssue_A(JButton btn, ResultSet rs) {
+        /*  This Method will Display a Button :
+        When Teacher Came for issuing a book and Already Issued a book Earlier 
+        then Button['Show Details'] will help to get the Transation of that previously issued Book
+         */
+        try {
+            rs.first();
+            btn.setVisible(true);
+            if (rs.getString("TypeOfMember").equalsIgnoreCase("S")) {
+                // Show Adv.Display Panel : with Student Member --> rs.getInt("M_Id") and Data rs
+                p("Show Adv.Display Panel:with Student-> rs.getInt(\"M_Id\") & rs");
+            } else {
+                // Show Adv.Display Panel : with Student Member --> rs.getInt("M_Id") and Data rs
+                p("Show Adv.Display Panel:with Teacher-> rs.getInt(\"M_Id\") & rs");
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    public void issueBook(ResultSet rs) {				// Set fields to Issue Panel...
+        try {
+            rs.first();
+            String rsMid = "" + rs.getInt("M_Id");
+            String rsMember = rs.getString("Member");
+            String rsTypeOfMember = rs.getString("TypeOfMember");
+            Calendar cd = Calendar.getInstance();
+            String issueDt = getDate_DyDtMnYr(cd);
+
+            txtBkI_B_data.setText("");
+            txtBkI_B_mId.setText("[" + rsTypeOfMember + "] " + rsMid);
+            txtBkI_B_mNm.setText(rsMember);
+            txtBkI_B_doi.setText(issueDt);
+            lblBkI_B_err.setVisible(false);
+        } catch (Exception e) {
+            lblBkI_B_err.setForeground(Color.red);
+            lblBkI_B_err.setVisible(true);
+            p(e.getMessage());
+            showMsgOnLbl("OOPs... Some field might set Inproperly, Retry !", lblBkI_B_err);
+        }
+    }
+
+	
 
 }// Class Ended...
