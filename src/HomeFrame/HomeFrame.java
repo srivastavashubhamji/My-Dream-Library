@@ -6256,6 +6256,24 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         setBkRetListLabels(selInd);// 0 and 1 only
     }
 
+    private void btnRetBkRecvActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Toggle btn of Return book...
+        btnRetBkRecv.setText("Received");
+        btnRetBkRecv.setForeground(new Color(20, 180, 20));
+    }//  
+
+    private void comboBk_R_CActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle ComboBox of Return Books subpanel C...
+        if (comboBk_R_C.isSelected()) { // Charge the Fine ...and Return
+            pnlBkR_C_sub2.setVisible(false);
+            pnlBkR_C_sub1.setVisible(true);
+            setRet_C_SubPnl(2);
+			//            pnlBkR_C_sub1.setBounds( 147,190,605,196 );
+        } else {                          // Show Last Date Extending Panel...and Return
+			//            pnlBkR_C_sub2.setBounds( 147,190,605,196 );
+            pnlBkR_C_sub1.setVisible(false);
+            pnlBkR_C_sub2.setVisible(true);
+            setRet_C_SubPnl(1);
+        }
+    }
 	
 	
 }// Class Ended...
