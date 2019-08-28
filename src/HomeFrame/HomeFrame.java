@@ -7205,5 +7205,51 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         }
     }
 
+	    public void takeDataToSetOnDel(ResultSet rs) {// Setting of Deletion Panel...
+		
+        lblBkEditNowErr.setForeground(Color.red);
+        lblBkEditNowErr.setVisible(false);
+        txtBkE_qty.setEditable(false);
+        txtBkE_qty.setToolTipText("To Increase: Click on \" +Book \",  To Decrease: Click on \" -Book \"");
+        try {
+            String bid = "Id : " + rs.getInt("b_acc_id");
+            String bname = "" + rs.getString("b_name");
+            String bqty = "" + rs.getInt("b_qty");
+            String btype = rs.getString("b_type");
+            String bauth1 = rs.getString("b_auth1");
+            String bauth2 = "" + rs.getString("b_auth2");
+            String bpub = rs.getString("b_pub");
+            String bpages = "" + rs.getInt("b_pages");
+            String brack = "" + rs.getInt("b_rack");
+            String bprice = "" + rs.getDouble("b_price");
+            String babout = rs.getString("b_about");
+			//            p("____________ DATA TO BE EDITED ____________");
+			//            p(bid +" AND "+ bname +" AND "+ bqty +" AND "+ btype  +" AND "+ bauth1  +" AND "+ 
+			//                bauth2  +" AND "+ bpub  +" AND "+ bpages  +" AND "+ brack  +" AND "+ bprice  +" AND "+ 
+			//                babout );
+            lblBkE_id.setText(bid);
+            txtBkE_name.setText(bname);
+            txtBkE_type.setText(btype);
+            txtBkE_rack.setText(brack);
+            txtBkE_auth1.setText(bauth1);
+            txtBkE_auth2.setText(bauth2);
+            txtBkE_pub.setText(bpub);
+            txtBkE_about.setText(babout);
+            txtBkE_qty.setText(bqty);
+            txtBkE_price.setText(bprice);
+            txtBkE_pages.setText(bpages);
+            showMsgOnLbl("Great ... Record Updated Successfully.", lblBkEditNowErr);
+            rs.close();
+        } catch (SQLException e) {
+            showMsgOnLbl("OOPs...Something Went Wrong, Retry !", lblBkEditNowErr);
+        } catch (Exception e) {
+            showMsgOnLbl(e.getMessage(), lblBkEditNowErr);
+        }
+    }
+
+    public int isInvalidBkEditFields() {
+		// Checking is remaining...
+        return 0;   // No Error
+    }
 	
 }// Class Ended...
