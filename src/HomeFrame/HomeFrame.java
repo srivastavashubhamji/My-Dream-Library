@@ -7321,6 +7321,40 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         return (day + " " + mon + " " + date + "," + year);
         //Returns like:("Thu Jan 31,2019")
     }
+    public String getDbInsertableDate(String day_mon_date_year) {// Method I/p : "day_mon_date_year"(String) , O/p : "yyyy-mm-dd"(String)...
+        /*     This Function will take 'String Argument' as "day_mon_date_year" (eg
+               : Thu Jan 31,2019 ) And Returns 'String' as 'yyyy-mm-dd' (eg:
+               2019-01-31)
+               Receives like:'Thu Jan 31 2019'
+                    Index :"0123456789012345"   */
+        String months = "   JanFebMarAprMayJunJulAugSepOctNovDec";
+        //  "012345678901234567890123456789012345678" (Divided by / ) 3 = Num of Month        
+        String mon = day_mon_date_year.substring(4, 7);
+        String date = day_mon_date_year.substring(8, 10);
+        String year = day_mon_date_year.substring(11);
+        int numMonth = months.indexOf(mon) / 3;
+        // p("In Func : "+date+"-"+numMonth+"-"+year);
+        return (year + "-" + numMonth + "-" + date);            // Returns like : 2019-01-31
+    }
+    
+    public String getDbInsertableCurrentDate() {	// Returns like "2019-08-30"
+        String months[] = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"} ;
+        Calendar cd = Calendar.getInstance();
+        String date = ""+cd.getTime()+" ";				// "Wed Jun 12 10:38:59 PDT 2019 "        
+p("\n%%%%% Date = >"+ date +"<=");				//  01234567890123456789012345678
+        int currMM = -1;
+        for(String s: months){
+                currMM++;
+                if( date.substring(4,7).equals(s) )
+                        break; 
+        }			
+        String dd = date.substring(8,10);			// "12"
+        String mm = "" + currMM;				// "6"	... MySQL converts it to "06"
+        String yyyy = date.substring(24,28);			// "2019"
+p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
+        return ( yyyy +"-"+ mm +"-"+ dd );
+    }
+
 
 
 }// Class Ended...
