@@ -6459,6 +6459,18 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         showOnlyPanel("pnlBkDel");
     }//  
 
+    private void btnBkShow_Go4ActionPerformed(java.awt.event.ActionEvent evt) {		//  Method will called when 'Book Delete Panel B is Submitted...'
+        setBkDel_C_Panel();             // IF All gose well THAN Set Labels and Show Panel 'pnlBkDelNow'...Book Delete Panel 3
+        showOnlyPanel("pnlBkDelNow");
+    }//  
+
+    private void btnBkDel_D_SubmitActionPerformed(java.awt.event.ActionEvent evt) {	//  Method will invoked when 'Book Delete SubPanel D "pnlBkDel_D" is Submitted (/ 'Selected' is Clicked.)'...		
+		//   till now Global Obj 'listbkval' can have more than One Records( for Teacher who lost a book and now selected One of Them)...      
+        int selInd = listBkDel_D.getSelectedIndex();
+        setFinalBookDelPanel_E(selInd);
+        
+    }
+
 	
 	
 }// Class Ended...
