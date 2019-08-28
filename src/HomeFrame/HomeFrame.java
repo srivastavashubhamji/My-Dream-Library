@@ -7078,9 +7078,132 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
     }
 
 	
+    public String[] getBooksRecords() {// To Get Books Records...
+        String[] results = null;
+        java.util.ArrayList<String> arrList = null;
+        Connection con = getDbConnObj();
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            if (con == null) {
+                throw new Exception("OOPs... Something went Wrong, Retry. ");
+            }
+            String sql = "Select a.b_name BookName, a.b_qty BookQty, a.b_acc_id Code, sum(case  "
+                    + "when b.status='I' then 1 else 0 end) as Issued, "
+                    + "sum(case  when b.status='R' then 1 else 0 end) as Repair, "
+                    + "sum(case  when b.status='D' then 1 else 0 end) as Destroyed, "
+                    + "sum(case  when b.status='A' then 1 else 0 end) as Available "
+                    + "From tbl_book_info a " + ""
+                    + "left join tbl_books b on a.b_acc_id = b.accid "
+                    + "group by a.b_name, a.b_qty, a.b_acc_id order by a.b_acc_id ;";
+            p("\n Showing Books Query : \n" + sql);
+            arrList = new java.util.ArrayList<>();
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            String recordStr = "";
+            if (rs == null || rs.next() == false) {
+                throw new Exception("OOPs...No Book's Record found !");
+            }
 
+            do {
+                recordStr = "" + rs.getString("BookName") + " - (" + rs.getInt("BookQty") + ") , "
+                        + "Code - " + rs.getInt("Code") + " , Repair = " + rs.getInt("Repair")
+                        + " , Issued = " + rs.getInt("Issued") + " , Available = " + rs.getInt("Available");
+                arrList.add(recordStr);
+                // arrList[0] = "10001 - Java (4),Rs. 399.00/-",
+                // arrList[1] = "10002 - C++ (2),Rs. 199.00/-".
+            } while (rs.next());
+            results = new String[arrList.size()];
+            for (int i = 0; i < arrList.size(); i++) {
+                results[i] = arrList.get(i);
+            }
 
-	
+            st = null;
+            rs = null;
+            // This Query will give Number of TotalBooks, TotalQty, Available Books, Issued Books, Repair Books
+            sql = "Select (Select count(*) from tbl_book_info) TotalBooks,"
+                    + "(Select count(*) from tbl_books) TotalQty,"
+                    + "(Select count(*) from tbl_books where status='A') Available,"
+                    + "(Select count(*) from tbl_books where status='I') Issued,"
+                    + "(Select count(*) from tbl_books where status='R') Repair "
+                    + "from dual";
+            p("Again \n\nOther " + sql);
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            if (rs == null || rs.next() == false) {
+                throw new Exception("OOps...No Records found !");
+            }
+            p("TotalBooks = " + rs.getInt("TotalBooks"));
+            p("TotalQty = " + rs.getInt("TotalQty"));
+            p("Available = " + rs.getInt("Available"));
+            p("Issued = " + rs.getInt("Issued"));
+            p("Repair = " + rs.getInt("Repair"));
+
+            lblBkShowNBks.setText("" + rs.getInt("TotalBooks"));
+            lblBkShowNBkQty.setText("" + rs.getInt("TotalQty"));
+            lblBkShowNBkStsA.setText("" + rs.getInt("Available"));
+            lblBkShowNBkStsI.setText("" + rs.getInt("Issued"));
+            lblBkShowNBkStsR.setText("" + rs.getInt("Repair"));
+            rs.close();
+            st.close();
+            con.close();
+        } catch (SQLException ex) {
+            lblBkShowErr.setForeground(Color.red);
+            showMsgOnLbl("OOps... Something Went Wrong Baba!", lblBkShowErr);
+            lblBkShowErr.setVisible(true);
+        } catch (Exception e) {
+            lblBkShowErr.setForeground(Color.red);
+            lblBkShowErr.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkShowErr);
+            results = new String[]{"OOps,Somthing went Wrong..."};
+        } finally {
+//            results = (String[])arrList.toArray();            
+            return results;
+
+        }
+    }
+
+    public void takeDataToSetEdit(ResultSet rs) {// Updating Book Record in DB...
+        lblBkEditNowErr.setForeground(Color.red);
+        lblBkEditNowErr.setVisible(false);
+        txtBkE_qty.setEditable(false);
+        txtBkE_qty.setToolTipText("To Increment: Click on \" +Book \",  To Decrement: Click on \" -Book \"");
+        try {
+            String bid = "Id : " + rs.getInt("b_acc_id");
+            String bname = "" + rs.getString("b_name");
+            String bqty = "" + rs.getInt("b_qty");
+            String btype = rs.getString("b_type");
+            String bauth1 = rs.getString("b_auth1");
+            String bauth2 = "" + rs.getString("b_auth2");
+            String bpub = rs.getString("b_pub");
+            String bpages = "" + rs.getInt("b_pages");
+            String brack = "" + rs.getInt("b_rack");
+            String bprice = "" + rs.getDouble("b_price");
+            String babout = rs.getString("b_about");
+
+//            p("____________ DATA TO BE EDITED ____________");
+//            p(bid +" AND "+ bname +" AND "+ bqty +" AND "+ btype  +" AND "+ bauth1  +" AND "+ 
+//                bauth2  +" AND "+ bpub  +" AND "+ bpages  +" AND "+ brack  +" AND "+ bprice  +" AND "+ 
+//                babout );
+            lblBkE_id.setText(bid);
+            txtBkE_name.setText(bname);
+            txtBkE_type.setText(btype);
+            txtBkE_rack.setText(brack);
+            txtBkE_auth1.setText(bauth1);
+            txtBkE_auth2.setText(bauth2);
+            txtBkE_pub.setText(bpub);
+            txtBkE_about.setText(babout);
+            txtBkE_qty.setText(bqty);
+            txtBkE_price.setText(bprice);
+            txtBkE_pages.setText(bpages);
+            showMsgOnLbl("Great ... Record Updated Successfully.", lblBkEditNowErr);
+            rs.close();
+        } catch (SQLException e) {
+            showMsgOnLbl("OOPs...Something Went Wrong, Retry !", lblBkEditNowErr);
+        } catch (Exception e) {
+            showMsgOnLbl(e.getMessage(), lblBkEditNowErr);
+        }
+    }
 
 	
 }// Class Ended...
