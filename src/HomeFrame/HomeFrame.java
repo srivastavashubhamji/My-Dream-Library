@@ -6470,6 +6470,22 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         setFinalBookDelPanel_E(selInd);
         
     }
+    private void btnBkDel_D_CancelActionPerformed(java.awt.event.ActionEvent evt) {	//  Method will Called when : Book Deletion Panel -  "pnlBkDel_D" 's  Btn 'Cancel' is Clicked...
+        
+        listBkRet = null;
+        listBkRet = new java.util.ArrayList<>();
+        showOnlyPanel("pnlLogo");
+    }//  
+
+    private void btnBkDel_D_BackActionPerformed(java.awt.event.ActionEvent evt) {	//  This method will Called when : Book Deletion Panel-  "pnlBkDel_D" 's  Btn 'Back' is Clicked...
+
+        listBkRet = null;
+        listBkRet = new java.util.ArrayList<>();
+        showOnlyPanel("pnlBkDel");
+		// Intentionally sending to first Subpanel as :  
+		//   1 Global Obj 'listBkRet' cannot use for 2 subPanels : 'pnlBkDel_D' and After that 'pnlBkDel_E' without performing heavy DB action...
+    }
+
 
 	
 	
