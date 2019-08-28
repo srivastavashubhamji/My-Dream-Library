@@ -6494,6 +6494,74 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
     }//  
 
 	
+    private void btnSubmit_pnlBkDel_EActionPerformed(java.awt.event.ActionEvent evt) {// This method is to handle Book Deletion Final Submit...
+    
+        try{
+                
+                String bookInfos = listBkRet.get(0);
+                String []arrBkDel = bookInfos.split("([\\^\\^\\^]+)");                                         /* // Explaination...At the time of Submission , Whatever index is selected in pnlBkDel_B... Fetch the Value from Global ListObject 'listBkRet' by .get(n) using Corresponding Index No, Use split() method to Store that Concatenated String into a String Array...
+
+                        +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+                        | Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+                        +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+                        | Cpp Book | 10002 |   101 |   5 | Bhatt  | 1010 | Fac. | Jul 16,2019 | 300.00 |     1   | Kallo  |
+                arr[] : +-----0----+---1---+----2--+---3-+---4----+---5--+--6---+------7------+----8---+-----9---+---10---+            */
+            int i=0;
+            for(String s:arrBkDel)
+                p("\n### arr "+ (i) +" =>" + arrBkDel[i++] + "<=");
+
+
+            int accid = Integer.parseInt(arrBkDel[1]);
+            int accno = Integer.parseInt(arrBkDel[2]);
+            String feedBack = "";
+            feedBack = updateStatusInTbl_books( accid, accno );                                                 
+            // change the tbl_books status from 'I'ssued   OR   'A'vailable  to  'D'eleted...
+            
+            if( !feedBack.equals("1") ){
+                p("\n### 3  Exception occ 1, feedBack =>"+feedBack);
+                throw new Exception( feedBack );                                                                // throwing Exception or Error...
+            }
+            
+            feedBack = "";
+            feedBack = insertIntoTblBookDel( accid, accno, "MemberLostTheBook" );
+            // In Table bkdel ... Make entry of that Members Id, Book Id ,Book No and Current Date...
+            
+            if( !feedBack.equals("1") ){
+                p("\n### 6  Exception occ 2, feedBack =>"+feedBack);
+                throw new Exception( feedBack );                                                                // throwing Exception or Error...
+            }
+            else{
+                feedBack = "";
+			// +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+			// | Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+			// +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+                String bkShortName = "";
+                if((arrBkDel[0].length()) < 14)
+                    bkShortName = arrBkDel[0];
+                else
+                    bkShortName = arrBkDel[0].substring(10)+"...";
+                feedBack = "A Book '"+ bkShortName + "'["+ arrBkDel[1] +"] is Deleted Successfully !";
+                // Sending User on Home Page...
+                lblBkD_errMsg.setText( feedBack );
+                showOnlyPanel("pnlBkDel");
+            }
+        }catch(Exception e){
+            lblBkR_B_err1.setText(e.getMessage());
+            showOnlyPanel("pnlBkDel_E");
+        }
+    }//  
+
+    private void btnRetBkRecv1ActionPerformed(java.awt.event.ActionEvent evt) {// 		 This method is called when 'Book Delete Subpanel E's 'ReceiveBtn' is Clicked
+        
+        if(btnRetBkRecv1.getText().equals("Receive")){
+            btnRetBkRecv1.setText("Received");
+            btnRetBkRecv1.setForeground(new Color(10,180,10));
+        }
+        else{
+            btnRetBkRecv1.setText("Receive");
+            btnRetBkRecv1.setForeground(new Color(250,10,10));
+        }
+    }//  
 
 	
 	
