@@ -6274,6 +6274,39 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
             setRet_C_SubPnl(1);
         }
     }
+    private void checkRep_1ActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Label and List of Overdue Issued Books...
+        if (checkRep_1.isSelected()) {
+            repSub1.setBackground(new Color(240, 240, 240));
+            lblRepDt.setText("Date(dd-mm-yyyy)    --");
+            txtRepDD.setVisible(true);
+            txtRepMM.setVisible(true);
+            txtRepYYYY.setVisible(true);
+
+        } else {
+            repSub1.setBackground(new Color(240, 241, 240));
+            lblRepDt.setText("  ");
+            txtRepDD.setVisible(false);
+            txtRepMM.setVisible(false);
+            txtRepYYYY.setVisible(false);
+        }
+    }//  
+
+    private void checkRep_2ActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Label and List of Overdue Issued Books on other Subpanel...
+        if (checkRep_2.isSelected()) {
+            repSub2.setBackground(new Color(240, 240, 240));
+            lblRepDt2.setText("Date(dd-mm-yyyy)    --");
+            txtRepDD2.setVisible(true);
+            txtRepMM2.setVisible(true);
+            txtRepYYYY2.setVisible(true);
+        } else {
+            repSub2.setBackground(new Color(240, 241, 240));
+            lblRepDt2.setText("  ");
+            txtRepDD2.setVisible(false);
+            txtRepMM2.setVisible(false);
+            txtRepYYYY2.setVisible(false);
+        }
+    }//  
+
 	
 	
 }// Class Ended...
