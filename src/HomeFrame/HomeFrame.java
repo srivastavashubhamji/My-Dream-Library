@@ -6485,7 +6485,15 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
 		// Intentionally sending to first Subpanel as :  
 		//   1 Global Obj 'listBkRet' cannot use for 2 subPanels : 'pnlBkDel_D' and After that 'pnlBkDel_E' without performing heavy DB action...
     }
+    private void btnBack_pnlBkDel_EActionPerformed(java.awt.event.ActionEvent evt) {//  This method will called when : Book Deletion SubPanel's 'Back' btn is clicked...        
+        showOnlyPanel("pnlBkDelNow");
+    }
 
+    private void btnCancel_pnlBkDel_EActionPerformed(java.awt.event.ActionEvent evt) {// This method will called when : Book Deletion SubPanel's 'Cancel' btn is clicked...        //  
+		showOnlyPanel("pnlLogo");
+    }//  
+
+	
 
 	
 	
