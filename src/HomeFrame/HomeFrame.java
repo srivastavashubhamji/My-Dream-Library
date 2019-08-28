@@ -6308,5 +6308,116 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
     }//  
 
 	
+    private void reportSubmitActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Report Submittion as PDF Creation...
+        
+        String ret = "";
+        int arrSelBox[] = null;
+        arrSelBox = new int[]{0, 0, 0, 0};
+
+        try {
+		//  checking If 1st Checkbox selected : if Yes -> Its Date feilds are filled Properly or Not
+            if (checkRep_1.isSelected()) {
+                ret = validateReportInfo(1);    // Checks Rel.Date Details
+                if (ret.equals("ok") == false) 
+                    throw new Exception(ret);
+                else
+                    arrSelBox[0] = 1;
+            }
+		//  checking If 2st Checkbox selected : if Yes -> Its Date feilds are filled Properly or Not
+            if (checkRep_2.isSelected()) {
+                ret = "";
+                ret = validateReportInfo(2);    // Checks Rel.Date Details
+                if (ret.equals("ok") == false) 
+                    throw new Exception(ret);
+                else
+                    arrSelBox[1] = 1;
+
+		//  check_UpdateExpiryOfMem_ship() method Checks and Updates Membership Expiry Status from 'A'ctive to 'I'nactive ...
+                check_UpdateExpiryOfMem_ship();
+            }
+
+            if (checkRep_3.isSelected()) {
+                if (comboRep3.getSelectedIndex() == 0) 
+                    throw new Exception("OOPs...Criteria, for 3rd Report query, is not Selected !");                
+                else 
+                    arrSelBox[2] = 1;
+            }           
+            if (checkRep_4.isSelected()) {
+                if (comboRep4.getSelectedIndex() == 0) 
+                    throw new Exception("OOPs...Criteria, for 4th Report query, is not Selected !");
+                else
+                    arrSelBox[3] = 1;
+            }
+		//  Till Now Date & ComboBox is Checked and Validated, Now which Queries we'll have to Fire ...
+
+            String homeDir = System.getProperty("user.home");
+            String pathSep = System.getProperty("file.separator");
+            String folder = "LibraryReports";
+            String filename = getFileName_DateTimeName();
+            String pathTillFolder = homeDir + pathSep + folder;
+            String pathTillFile = homeDir + pathSep + folder + pathSep + filename;
+
+            File fp = new File(pathTillFolder);
+            if (fp.mkdir()) {
+                p("New Folder Created.");
+            } else {
+                p("Folder already exists.");
+            }
+
+		//  Till Now 'Directory' is Created where PDF : 'dc' will Reside ...
+            Connection con = null;
+            con = getDbConnObj();
+            if (con == null)
+                throw new Exception("OOPs... Connection error, Check and Retry !");
+
+            String sql = "";
+            Statement st = null;
+            ResultSet rs = null;
+
+		//            if(rs == null || rs.next() == false)
+		//                throw new Exception("No rows Found");
+		//  Creating PDF ...
+            Document dc = new Document();
+            Paragraph para = null;  // new Paragraph(msg);            
+            PdfWriter.getInstance(dc, new FileOutputStream(pathTillFile));
+            dc.open();
+
+            String headNote = "Report - My Dream Library : " + getReportTime();
+		//  Setting Header of Report :
+            PdfPTable table = new PdfPTable(1);
+            PdfPCell c1 = new PdfPCell(new Phrase(headNote));
+            c1.setBackgroundColor(BaseColor.RED);
+            c1.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
+            c1.setPaddingBottom(20.0f);
+            c1.setPaddingTop(20.0f);
+            c1.setPaddingLeft(90.0f);
+            c1.setPaddingRight(90.0f);
+            table.addCell(c1);
+            dc.add(table);
+            dc.add(new Paragraph(" "));
+		//  Setting Query Results In PDF...            
+            for (int i = 0; i < 4; i++) {
+                if (arrSelBox[i] == 1) {                    // Whichever ReportPanel's CheckBox is Selected...Go in Loop and check For all 4 Reports...
+                    sql = getReportQueryFor(i);
+                    st = con.createStatement();
+                    rs = st.executeQuery(sql);
+                    dc = createReport(rs, dc, i);           // Updating PDF or say itext.Document's dc
+                }
+            }
+		//  Till Now All Report is in PDF...
+            dc.close();
+            p("\nPdf Document saved");
+            p("\nPath till pdf Folder " + pathTillFolder);
+        } catch (Exception e) {
+			p("!!! Exception in reportSub.Act.Per...(), msg=>"+e.getMessage());
+            showMsgOnLbl(e.getMessage(), reportErr);
+        }
+    }//  
+
+    private void reportResetActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to Reset Report Components ...
+        resetReportComps();
+    }//  
+
+	
 	
 }// Class Ended...
