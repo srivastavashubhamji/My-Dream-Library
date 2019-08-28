@@ -6982,4 +6982,45 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
     private javax.swing.JTextField txtRepYYYY;
     private javax.swing.JTextField txtRepYYYY2;
     // End of variables declaration//  	
+	
+    public void p(String msg) {
+        System.out.println(msg);
+    }
+
+    public void showOnlyPanel(String pnlName) {// This method is called to Show only that Panel whose Name is Given...
+	
+	//        allPanels = new JPanel[]{pnlParent,pnlLogo,pnlBkAdd,pnlBkIssue};
+	//        allPanelsNames = new String []{"pnlParent","pnlLogo","pnlBkAdd","pnlBkIssue"};
+
+        for (JPanel pnl : allPanels) {        // Hide all other Panels
+            pnl.setVisible(false);
+        }
+
+        int iOfPanelComp = -1;
+        for (String pnl : allPanelsNames) {   // Loop to get Index of "Which Panel will Display"...
+            iOfPanelComp++;
+            if (pnlName.equals(pnl)) {
+                break;
+            }
+        }
+        int x = 0, y = 119, width = 994, height = 679;
+        allPanels[iOfPanelComp].setVisible(true);
+        allPanels[iOfPanelComp].setBounds(x, y, width, height);
+
+        p("Panel =>'" + allPanelsNames[iOfPanelComp] + "' will display Only and at...");
+        JPanel t = allPanels[iOfPanelComp];
+        java.awt.Rectangle r = t.getBounds();
+        p("x =" + r.x + "  ,y= " + r.y + " , width=" + r.width + " height=," + r.height + " visibility = " + t.isVisible());
+        p("++++++++++\n===========");
+    }
+
+    public void setPanels(){    			   // All panels Bounds = Parent Panels Bounds and All panels .setVisible = false;
+
+        int x = 0, y = 119, width = 994, height = 679;
+        for (JPanel temp : allPanels) {
+            temp.setBounds(x, y, width, height);
+            temp.setVisible(false);
+        }
+    }	
+	
 }// Class Ended...
