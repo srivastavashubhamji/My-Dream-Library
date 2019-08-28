@@ -7022,5 +7022,28 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
             temp.setVisible(false);
         }
     }	
+
+	
+    public void clearFields(JTextField[] arrTxts) {// Method to reset TxtFlds
+        for (JTextField temp : arrTxts) {
+            temp.setText("");
+        }
+    }
+
+    public boolean isEmptyFields(JTextField[] arrTxts) { // Method to Check : IsEmpty...
+        for (JTextField temp : arrTxts) {
+            if ((new String(temp.getText()).length()) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void showMsgOnLbl(String msg, JLabel lbl) {  //  Method to show Success or Error Msg on Label...
+        lbl.setText(msg);
+    }
+
+	
+
 	
 }// Class Ended...
