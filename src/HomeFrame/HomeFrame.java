@@ -6451,6 +6451,14 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         setComps_DelBk_B_OnListChange();
     }//  
 
+    private void btnBkD_back10ActionPerformed(java.awt.event.ActionEvent evt) {		//  Method to handle Back Btn...
+        showOnlyPanel("pnlLogo");
+    }//  
+
+    private void pnlBkI_B_chgMem5ActionPerformed(java.awt.event.ActionEvent evt) {	//  Method to Display Delete_Sub_Panel...
+        showOnlyPanel("pnlBkDel");
+    }//  
+
 	
 	
 }// Class Ended...
