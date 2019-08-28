@@ -7042,6 +7042,43 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
     public void showMsgOnLbl(String msg, JLabel lbl) {  //  Method to show Success or Error Msg on Label...
         lbl.setText(msg);
     }
+	
+    public int isInvalidBkAddFields() {
+//        String bkName = txtBkName.getText();
+//        String bkAuth2 = txtBkAuth2.getText();        
+//        String bkType = txtBkType.getText();
+//        String bkAuth1 = txtBkAuth1.getText();
+//        String bkPub = txtBkPub.getText();
+//        
+//        String bkRack = txtBkRack.getText();
+//        String bkQty = txtBkQty.getText();
+//        String bkPages = txtBkPages.getText();
+//        
+//        String bkPrice = txtBkPrice.getText();        
+        int retVal = 0;
+//        if(bkName.matches(""))        
+        return retVal;
+    }
+
+    public Connection getDbConnObj() {// Creating 'Connection' class' Reference Variable ...
+        
+        Connection con = null;
+        String url = "jdbc:mysql://localhost:3306/librarydb";
+        String dbUname = "root";
+        String dbPass = "";
+        try {
+            // Calling a Static Method of class "Class" to Load the MySQL JDBC Driver ...
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(url, dbUname, dbPass);
+        } catch (Exception e) {
+            con = null;
+        } finally {
+            return con;
+        }
+    }
+
+	
+
 
 	
 
