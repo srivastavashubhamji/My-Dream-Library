@@ -7355,6 +7355,32 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         return ( yyyy +"-"+ mm +"-"+ dd );
     }
 
+    public Calendar getPossible_DateOfRet(Calendar cd) {// Method that ensures : There is No Sunday on Book Returning Date...
+        String dt = getDate_DyDtMnYr(cd); 		// Can Returns like : "Sun Mar 01,2019"
+        String day = dt.substring(0, 3);
+        if (day.equalsIgnoreCase("Sun")) {
+            p("\n Incrementing 1 Day as Found Sunday on " + cd.getTime());
+            cd.add(Calendar.DATE, 1);
+        } else {
+            p("\n Not Incrementing 1 day...");
+        }
+        return cd;					// Will Returns like : 'Mon Mar 01,2019'
+    }
+    
+    public String getDateAsMonDateYear(String yyyy_mm_dd){          // Takes as  :  "2019-03-27" and  Returns as = "Mar 27,19" 
+        String months[] = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"} ;
+        String arr [] = yyyy_mm_dd.split("([-])");
+        String retDate="";                                          // for(int i = 0; i<3; i++) p("arr["+i+"] = "+ arr[i]);
 
+        retDate = months[Integer.parseInt(arr[1])];		    // retDate holds = "Mar"
+
+        retDate += " "+arr[2];					    // retDate holds = "Mar 27"
+
+        retDate += "," + arr[0].charAt(2) + "" + arr[0].charAt(3);  // retDate holds = "Mar 27,19"
+        
+        return retDate;      					    // Returns as = "Mar 27,19"
+    }
+
+	
 
 }// Class Ended...
