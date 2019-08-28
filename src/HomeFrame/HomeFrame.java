@@ -7252,5 +7252,75 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         return 0;   // No Error
     }
 
-Method that fetched Records of Books when Id / Name of Books was Entered...
+	    public boolean setDataOnBkDelPanel_B(ResultSet rs ) {	// Method that fetched Records of Books when Id / Name of Books was Entered...
+        boolean retVal = false;
+	/*  'rs' can have like...
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+        ...When Id was Entered
+	| Code  | Name     | Qty | Type        | Author | Price  | Issued | Repairing | Destroyed | Available |
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+
+	| 10001 | Java book|   3 | Programming | lala   | 799.00 |      1 |         0 |         0 |         2 |
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+
+												OR
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+        ...When like 'Name' was Entered
+	| Code  | Name     | Qty | Type        | Author | Price  | Issued | Repairing | Destroyed | Available |
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+
+	| 10003 | Cpp 1.17 |   5 | Programming | lalaji | 100.00 |      0 |         0 |         0 |         5 |
+	| 10002 | Cpp Book |   5 | Programming | Kallo  | 300.00 |      2 |         0 |         0 |         3 |
+	+-------+----------+-----+-------------+--------+--------+--------+-----------+-----------+-----------+     */
+        listBkRet = null;                                         // A Global Object for sharing Data on Various SubPanels...
+        listBkRet = new java.util.ArrayList<>();
+        String listValue;
+        try{
+            do{
+                String  accId = "" + rs.getInt("Code"),                        
+                        bName = rs.getString("Name"),
+                        bQty = "" + rs.getInt("Qty"),
+                        bType = rs.getString("Type"),
+                        bAuth = rs.getString("Author"),
+                        bPrice = "" + rs.getDouble("Price"),
+                        nIssued = "" + rs.getInt("Issued"),
+                        nRepair = "" + rs.getInt("Repairing"),
+                        nDestroyed = "" + rs.getInt("Destroyed"),
+                        nAvailable = "" + rs.getInt("Available");
+                String sep = "^^^"; // Data Separator to Avoid 
+
+                listValue = accId + sep + bName + sep + bQty + sep + bType + sep + bAuth + sep + bPrice 
+                            + sep + nIssued + sep + nRepair + sep + nDestroyed + sep + nAvailable;
+                p("Delete books Info : List Value = \n"+ listValue); // listValue = "...";
+                listBkRet.add(listValue);
+            }while(rs.next());
+            
+            try {
+                listBkDel_B.setModel(                                // This is a JListBox of BkDelPnl_B...
+                    new javax.swing.AbstractListModel<String>() {
+                        String[] strings = getDelBooksRecords("forBkDelPanel_B");
+
+                        public int getSize() {  return strings.length;  }
+
+                        public String getElementAt(int i) {    return strings[i];    }
+                    }
+                );
+            } catch (Exception e) {
+                p("Nominal Exception from 'del_Bk_2_JList setter'- ... May be IllegalArgumentException occured ~4660 when Setting String to ReturnSubPnl_B_Listbox ,err = >" + e.getMessage()+"<-");
+            }
+            listBkDel_B.setSelectedIndex(0);
+            retVal=true;
+        }catch (Exception e){
+            p("Nominal Exception - ... May be IllegalArgumentException occured ~4660 when Setting String to ReturnSubPnl_B_Listbox ,err = " + e.getMessage());
+        }
+        return retVal;
+    }
+
+    public String getDate_DyDtMnYr(Calendar cd) {			// Method that Takes String dt as "Wed Jun 12 10:38:59 PDT 2019";  Returns as "Thu Jan 31,2019"
+        String dt = "" + cd.getTime();      // Takes String dt as "Wed Jun 12 10:38:59 PDT 2019";  Returns as "Thu Jan 31,2019"
+                                                        //         Index  = "0123456789012345678901234567"
+        String day = dt.substring(0, 3);
+        String mon = dt.substring(4, 7);
+        String date = dt.substring(8, 10);
+        String year = dt.substring(24);
+        return (day + " " + mon + " " + date + "," + year);
+        //Returns like:("Thu Jan 31,2019")
+    }
+
+
 }// Class Ended...
