@@ -6418,6 +6418,31 @@ mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
         resetReportComps();
     }//  
 
+    private void comboMAddActionPerformed(java.awt.event.ActionEvent evt) {			//  Method to handle Report...
+        if (comboMAdd.getSelectedIndex() == 0 || comboMAdd.getSelectedIndex() == 2) {
+            txtMAdd_Class.setEditable(false);
+            txtMAdd_Class.setText("");
+            txtMAdd_Rno.setEditable(false);
+            txtMAdd_Rno.setText("");
+        } else {      				// Student is Selected ...Take Input in Class and Rno Field...
+            txtMAdd_Class.setEditable(true);
+            txtMAdd_Rno.setEditable(true);
+        }
+    }//  
+
+    private void btnMemAddActionPerformed(java.awt.event.ActionEvent evt) {			//  Method to Add Member...
+        showOnlyPanel("pnlMAdd");
+        lblMAddErr.setText("");
+        lblMAddErr.setForeground(Color.red);
+        Calendar cd = Calendar.getInstance();	// Todays' Date like: "Wed Jun 12 10:38:59 PDT 2019"
+        String mon_date_year = getDate_DyDtMnYr(cd);	// Returns like : "Wed Jan 29,2019";
+        txtMAdd_doj.setText(mon_date_year.substring(4));// from Month i.e. : "Jan...";
+        comboMAdd.setSelectedIndex(0);
+        chkMAdd_iss.setSelected(false);
+        txtMAdd_Class.setText("");
+        txtMAdd_Rno.setText("");
+    }//  
+
 	
 	
 }// Class Ended...
