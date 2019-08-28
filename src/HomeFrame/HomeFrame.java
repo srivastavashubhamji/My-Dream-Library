@@ -6182,5 +6182,80 @@ This Query ^ Returns All Rows with these fields of The Member( 'S' / 'T' ) ---> 
         lblBkR_B_err.setText("");
         lblRetBook.setVisible(true);;
     }
+
+    private void btnBkShow_Go5ActionPerformed(java.awt.event.ActionEvent evt) {		// Method to handle Book Return Subpanel C whether charge fine or not...
+        lblBkR_C_err.setText("");
+        lblBkR_C_err.setForeground(new Color(255, 0, 0));
+        try {
+//  Checking , When BkRet_C is Submitted then Which SubPanel was Visible...and is it Set or Not
+            if (pnlBkR_C_sub1.isVisible()) {
+                if (btnRetBkRecv.getText().equals("Receive")) {
+                    throw new Exception("OOPs...Fine Not Received, click on 'Receive'!");
+                }
+                returnBookFromSubPnl(1);
+            } else {
+                String changedDate = txtBkRet_C_2_nDays.getText();
+                if (radioR_C_inc.isSelected() == false && radioR_C_dec.isSelected() == false) {
+                    throw new Exception("OOPs...Select Increment / Decrement Option !");
+                }
+
+                if (txtBkRet_C_2_reason.getText().equals("Because of ") || txtBkRet_C_2_reason.getText().equals("")
+                        || (txtBkRet_C_2_reason.getText().length() < 10)) {
+                    throw new Exception("OOPs...Reason was not given Properly !");
+                }
+                if (changedDate.equals("0") || (!changedDate.matches("^[\\d]+$"))) {
+                    throw new Exception("OOPs...Only 1-9 digits are Allowed in 'Date Modify' Field !");
+                }
+                returnBookFromSubPnl(2);
+            }
+        } catch (Exception e) {
+            showMsgOnLbl(e.getMessage(), lblBkR_C_err);
+        }
+        /*
+                                                Before Submitting for Return
+mysql> select * from bktrans where m_id = 1007;select * from tbl_books where accid = 10003 and accno = 102;
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+| t_id | m_id | b_acc_id | accno | m_issDt    | m_propDt   | m_actRetDt | m_fine | m_delayCause | m_nPropDt |
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+|   30 | 1007 |    10003 |   102 | 2019-07-28 | 2019-08-28 | NULL       |   NULL | NULL         |      NULL |
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+
+
++-------+-------+--------+
+| accid | accno | status |
++-------+-------+--------+
+| 10003 |   102 | I      |
++-------+-------+--------+
+1 row in set (0.00 sec)
+                                                After Submitting for Return
+mysql> select * from bktrans where m_id = 1007;select * from tbl_books where accid = 10003 and accno = 102;
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+| t_id | m_id | b_acc_id | accno | m_issDt    | m_propDt   | m_actRetDt | m_fine | m_delayCause | m_nPropDt |
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+|   30 | 1007 |    10003 |   102 | 2019-07-28 | 2019-08-28 | 2019-08-30 |   4.00 | NULL         |      NULL |
++------+------+----------+-------+------------+------------+------------+--------+--------------+-----------+
+1 row in set (0.00 sec)
+
++-------+-------+--------+
+| accid | accno | status |
++-------+-------+--------+
+| 10003 |   102 | A      |
++-------+-------+--------+
+1 row in set (0.00 sec)
+
+                                                    Resetting / RollBacking
+mysql> update bktrans set m_actRetDt=null,m_fine= null, m_delayCause = null, m_nPropDt = null where t_id = 30;
+
+mysql> update tbl_books set status = 'I' where accid = 10003 and accno = 102;
+
+         */
+    }//  
+
+    private void listBkR_BValueChanged(javax.swing.event.ListSelectionEvent evt) {	// Method to handle Selected Book info from List of Issued books to Return...
+        int selInd = listBkR_B.getSelectedIndex();
+        setBkRetListLabels(selInd);// 0 and 1 only
+    }
+
+	
 	
 }// Class Ended...
