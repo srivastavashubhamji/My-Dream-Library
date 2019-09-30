@@ -11449,4 +11449,36 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             p("!!! Exception in 'runReport4(String prefixOfReport4)' , msg = "+e.getMessage());
         }
     }
+    public void issueTheBook(){
+        p("\n issueTheBook() called...");
+        try {
+            lblBkI_A_err.setForeground(Color.red);
+            lblBkI_A_Data.setText("");
+            if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) {
+			// SQLExc... || Exc... occured 
+                p("SQLExc... || Exc... occured in chk_UpdtMem_ship( ) , isMemShipExpUpdated = " + isMemShipExpUpdated);
+                isMemShipExpUpdated = check_UpdateExpiryOfMem_ship();
+                p("Again Trying...chk(), isMemShipExpUpdated = " + isMemShipExpUpdated);
+                if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) {
+                    //             Membership Not Updated...
+                    lblBkI_A_err.setVisible(true);
+                    lblBkI_A_err.setText("OOPs...Connection Failed, Re-Start MySql Database !");
+                    lblBkI_A_Data.setEditable(false);
+                    lblBkI_A_Data.setToolTipText("Restart MySQL Database to Enter the Member Id for Issuing book.");
+                }
+            } else {
+                // This Time Membership Updated...SUCCESFULLY                
+                lblBkI_A_err.setText("");
+                lblBkI_A_err.setVisible(false);
+                lblBkI_A_Data.setEditable(true);
+                lblBkI_A_Data.setToolTipText("Enter the Member Id for Issuing book.");
+            }
+            showOnlyPanel("pnlBkIssue");
+            pnlBkI_B.setVisible(false);
+            pnlBkI_C.setVisible(false);
+            pnlBkI_D.setVisible(false);
+            pnlBkI_A.setVisible(true);
+            btnBkI_A_show.setVisible(false); // Appears when The Enter mem Already Took One/More Books...
+        } catch (Exception e) {        }
+    }
 }// Class Ended...
