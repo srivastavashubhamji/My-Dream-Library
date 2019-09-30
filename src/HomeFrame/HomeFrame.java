@@ -7746,5 +7746,59 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return (val + " Days Left");
         }
     }
-
+    public void setBkRetListLabels(int selInd) {
+        //+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+
+        //| m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed |
+        //+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+
+        //| 1002 | Shubhu | T          | 10002 |   101 | Cpp Book | Kallo  | Jun 21,2019 | Jul 22,2019 | Jul 29,2019 |          -7 |
+        //| 1002 | Shubhu | T          | 10002 |   102 | Cpp Book | Kallo  | Jun 17,2019 | Jul 18,2019 | Jul 29,2019 |         -11 |
+        //+------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+
+    
+        /*       listBkRet.get( 0 )= "1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^Jun 21,2019^^^Jul 22,2019^^^2019-08-01^^^10";
+        arr=split("[^^^]+")= "1002   Shubhu   T   10002   101   Cpp Book   Kallo   Jun 21,2019   Jul 22,2019   Jul 29,2019  -7  ";
+                   temp     [   0       1     2     3      4        5        6          7             8              9      10  ]; */
+            String[] arrBkRet;
+            arrBkRet = (listBkRet.get(selInd)).split("([\\^\\^\\^]+)");
+            p("===> list val changed...");
+            int i = 0;
+            for (String s : arrBkRet) {
+                p("arrBkRet " + (i++) + " = " + s);
+            }
+            lblBk_R_B_mId.setText(arrBkRet[0]);
+            lblBk_R_B_mNm.setText(arrBkRet[1]);
+            lblBk_I_D_mNm3.setText(arrBkRet[1]);
+    
+            lblBk_R_B_bId.setText(arrBkRet[3]);
+            lblBk_R_B_bNm.setText(arrBkRet[5]);
+            lblBk_R_B_bNm2.setText(arrBkRet[5]);
+    
+            if (arrBkRet[2].equalsIgnoreCase("T")) {
+                lblBk_R_B_mType.setText("Teacher");
+            } else {
+                lblBk_R_B_mType.setText("Student");
+            }
+    
+            lblBk_R_B_bAuth.setText(arrBkRet[6]);
+            lblBk_R_B_bIssDt.setText(arrBkRet[7]);
+            lblBk_R_B_bLastDt.setText(arrBkRet[8]);
+            lblBk_R_B_bRetDt.setText(arrBkRet[9]);
+            int nDaysLeft = Integer.parseInt(arrBkRet[10]);
+            if (nDaysLeft < 0) {
+                //  Member('S' or 'T') is n Days Late -
+                lblBk_R_B_bDelay.setForeground(new Color(235, 0, 0));
+                lblBk_R_B_bDelay.setText("Late: " + (nDaysLeft * (-1)) + " Day(s)");
+                if (arrBkRet[2].equals("S") == true) //  Fine will Only charged for --> Students , Not for --> Teachers
+                    pnlBkI_B_sub1.setText("Next");    //  Bring Student on Fine Panel
+                else
+                    pnlBkI_B_sub1.setText("Return");  //  Return Book From Teacher
+            } else {
+                //  Member('S' or 'T') is On Time     -
+                lblBk_R_B_bDelay.setForeground(new Color(20, 140, 20));
+                lblBk_R_B_bDelay.setText("On Time( " + nDaysLeft + " )");
+                pnlBkI_B_sub1.setText("Return");  //  Return Book From 'S' OR 'T'
+            }
+            //  List box me This Member ko Issue ki gyi Book(s for 'T') ka Detail feed hone and Rel.Lbls Set hone k baad,
+            //  Submit karna h OR Next( fine Panel ) display Karaana hai...
+        }
+    
 }// Class Ended...
