@@ -10087,5 +10087,817 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         }
         return dc;
     }
+    public Document setReport4InTable(Document dc, ResultSet rs, int selInd){
+		p("\nDocument setReport4InTable( , , ) called...");
+        String msg = "";
+        switch(selInd)
+        {
+            case 1:
+            {
+                /*  +----------+-------+-----+----------+----------+--------+------+-----------+
+                    | Name     | Code  | Qty | Author 1 | Author 2 | Price  | Rack | Available |
+                    +----------+-------+-----+----------+----------+--------+------+-----------+
+                    | Cpp Book | 10002 |   5 | Kallo    | Mangal   | 300.00 |    2 |         3 |    * /
+                    | Cpp 1.17 | 10003 |   5 | lalaji   | -        | 100.00 |    3 |         3 |
+                    +----------+-------+-----+----------+----------+--------+------+-----------+    */
+                try
+                {
+                    msg = "Details of All Books that are Available Now :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 8); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+					/*  +----------+-------+-----+----------+----------+--------+------+-----------+
+						| Name     | Code  | Qty | Author 1 | Author 2 | Price  | Rack | Available |
+						+----------+-------+-----+----------+----------+--------+------+-----------+
+						| Cpp Book | 10002 |   5 | Kallo    | Mangal   | 300.00 |    2 |         3 |    */
+                
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+
+                    PdfPCell c1 = new PdfPCell(new Phrase(" Name"));
+                    cells[0] = c1;
+					//                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase("  Code"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Qty."));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Author 1"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Author 2"));
+                    cells[4] = c1;
+					//                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase(" Price"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Rack"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Available"));
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }
+                    table.setHeaderRows(1);
+                    c1 = null;
+
+                    int rowNum = 0;
+
+                    while(rs.next())
+                    {
+                    /*  +----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Name     | Code  | Qty | Author 1 | Author 2 | Price  | Rack | Available |
+                        +----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Cpp Book | 10002 |   5 | Kallo    | Mangal   | 300.00 |    2 |         3 |
+                        rs = 1         2       3     4          5           6        7           8      */
+                        
+                        c1 = new PdfPCell(new Phrase( rs.getString(1) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[0] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(2)));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+
+                        String memberClass;
+                        String memberRno;
+
+						//                        if(rs.getString(5).equals("Stu.")){                 // if 'Type' = 'Stu.' then Store those 'Class' and 'Rno' value else Store '   -' in Table Cell...
+						//                            memberClass = rs.getString(3);
+						//                            memberRno = "" + rs.getLong(4);
+						//                        }else{
+						//                            memberClass = "  -";
+						//                            memberRno = "  -";
+						//                        }
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(3)));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[2] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(4) ));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(5) ));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[4] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getDouble(6)));
+                        c1.setPaddingLeft(3.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[5] = c1;
+                        /*  +----------+-------+-----+----------+----------+--------+------+-----------+
+                            | Name     | Code  | Qty | Author 1 | Author 2 | Price  | Rack | Available |
+                            +--1-------+--2----+---3-+---4------+---5------+---6----+---7--+-----8-----+
+                            | Cpp Book | 10002 |   5 | Kallo    | Mangal   | 300.00 |   2 |     3 |    */
+
+						//                        String formattedDate = getDateAsMonDateYear(rs.getString(7));           // Takes DOJ as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(7) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[6] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(8) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[7] = c1;
+
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else {
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                    }
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                        p("\nReport 4 : Combo 1 :- Case 1: Ended");
+                        
+                    
+                }catch(Exception e){
+                    msg = "----------- Some Information could not print Properly, Retry -----------";
+                    try {   dc.add(new Paragraph(msg)); }
+                    catch (Exception ee) { p("\nException in creteReport4(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+                    p("\n9988ss Exception in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());            
+                }
+                return dc;
+            }
+        
+            case 2:
+            {
+
+                try{
+                    // p("--->Report 4: Combo4 :-> 2 Index Selected : 'All Books that are Issued' ");
+
+                    msg = "Details of All Books that are Issued :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 8); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+                    /*  +-----------+----------+---------+------+------+-------------+-------------+----------+
+                        | Name      | BookCode | Member  | M_Id | Type | issuedOn    | LastDate    | DaysLeft |
+                        +-----------+----------+---------+------+------+-------------+-------------+----------+     / *
+                    RS==| Cpp 1.17  |    10003 | Shubham | 1003 | Stu. | Aug 06,2019 | Sep 06,2019 |       53 |
+                        | Java book |    10001 | Jitu    | 1011 | Fac. | Jul 02,2019 | Aug 02,2019 |       18 |
+                        +-----------+----------+---------+------+------+-------------+-------------+----------+    */
+                    
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+
+                    PdfPCell c1 = new PdfPCell(new Phrase(" Name"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Code"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Member"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("    Id"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Type"));
+                    cells[4] = c1;
+    //                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase("Issued On"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Last Date"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Days left"));
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+
+                    int rowNum = 0;
+
+                    while(rs.next())
+                    {
+                    /*  +-----------+----------+---------+------+------+-------------+-------------+----------+
+                        | Name      | BookCode | Member  | M_Id | Type | issuedOn    | LastDate    | DaysLeft |
+                        +---1-------+----2-----+---3-----+--4---+---5--+-----6-------+-----7-------+----8-----+
+                    RS==| Cpp 1.17  |  10003   | Shubham | 1003 | Stu. | Aug 06,2019 | Sep 06,2019 |   53     |     */
+                        
+                        c1 = new PdfPCell(new Phrase( rs.getString(1) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[0] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(2)));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(3) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[2] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(4) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(5) ));
+                        c1.setPaddingLeft(8.0f);                        
+                        cells[4] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(6) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(7) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[6] = c1;
+                        /*  +-----------+----------+---------+------+------+-------------+-------------+----------+
+                            | Name      | BookCode | Member  | M_Id | Type | issuedOn    | LastDate    | DaysLeft |
+                            +---1-------+----2-----+---3-----+--4---+---5--+-----6-------+-----7-------+----8-----+
+                        RS==| Cpp 1.17  |    10003 | Shubham | 1003 | Stu. | Aug 06,2019 | Sep 06,2019 |       53 |     */
+                        
+
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(8) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[7] = c1;
+
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else {
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                    }
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                        p("\nReport 4 : Combo 1 :- Case 2: Ended");                        
+                    
+                }catch(Exception e){
+                    msg = "----------- Some Information could not print Properly, Retry -----------";
+                    try {   dc.add(new Paragraph(msg)); }
+                    catch (Exception ee) { p("\nException in creteReport4(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+                    p("\n9009as Exception in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());            
+                }
+                return dc;
+            }
+            
+            case 3:
+            {
+                    /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | On Repair |
+                        +-----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Java book | 10001 |   3 | lala     | -        | 799.00 |    1 |         1 |
+                        | Cpp 1.17  | 10003 |   5 | lalaji   | -        | 100.00 |    3 |         2 |
+                        +-----------+-------+-----+----------+----------+--------+------+-----------+   */
+
+                try{
+                    // p("--->Report 4: Combo4 :-> 3 Index Selected : 'All Books gone for Repairing '");
+
+                    msg = "Details of All Books gone for Repairing :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 8); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+                    /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | On Repair |
+                        +--1--------+--2----+--3--+----4-----+----5-----+---6----+--7---+-----8-----+
+                        | Java book | 10001 |  3  | lala     | -        | 799.00 |  1   |     1     |   */
+                    
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+
+                    PdfPCell c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Code"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Quantity"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Author 1"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Author 2"));
+                    cells[4] = c1;
+    //                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase(" Price"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Rack"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("On Repair"));
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+
+                    int rowNum = 0;
+
+                    while(rs.next())
+                    {
+                    /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | On Repair |
+                        +--1--------+--2----+--3--+----4-----+----5-----+---6----+--7---+-----8-----+
+                        | Java book | 10001 |   3 | lala     | -        | 799.00 |    1 |         1 |   */
+                    
+                        c1 = new PdfPCell(new Phrase( rs.getString(1) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[0] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(2)));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(3) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[2] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(4) ));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[3] = c1;
+
+                        String author2 = rs.getString(5);
+                        c1 = new PdfPCell(new Phrase( author2 ));
+                        if(author2.length() < 5 )c1.setPaddingLeft(10.0f);
+                        else c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[4] = c1;
+
+                        c1 = new PdfPCell(new Phrase( "" + rs.getDouble(6) ));
+                        c1.setPaddingLeft(7.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(7) ));
+                        c1.setPaddingLeft(12.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[6] = c1;
+                    /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                        | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | On Repair |
+                        +--1--------+--2----+--3--+----4-----+----5-----+---6----+--7---+-----8-----+
+                        | Java book | 10001 |   3 | lala     | -        | 799.00 |    1 |         1 |   */
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(8) ));
+                        c1.setPaddingLeft(12.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[7] = c1;
+
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else {
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                    }
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                    
+                }catch(Exception e){
+                    msg = "----------- Some Information could not print Properly, Retry -----------";
+                    try {   dc.add(new Paragraph(msg)); }
+                    catch (Exception ee) { p("\nException in creteReport4(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+                    p("\n4545aq Exception in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());            
+                }
+                return dc;
+            }
+            case 4:
+            {
+                /*  +-----------+-------+-----+--------+------+------+------------+----------------------------+
+                    | Name      | Code  | Qty | Price  | Rack | M_Id | Date       | Reason                     |
+                    +--1--------+---2---+--3--+---4----+---5--+--6---+-----7------+-------------8--------------+
+                    | Java book | 10001 |   3 | 799.00 |    1 | 1004 | 2019-07-25 |   -                        |                
+                    | Cpp Book  | 10002 |   5 | 300.00 |    2 |   -  | 2019-07-25 | Gandhi ji ko de diye       |    
+                    +-----------+-------+-----+--------+------+------+------------+----------------------------+   */
+
+                try{
+                    p("--->Report 4: Combo4 :-> 4 Index Selected : 'All Books That are Destroyed'");
+
+                    msg = "Details of All Books That are Destroyed :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 8); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+
+                    PdfPCell c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Code"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Qty"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Price"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Rack"));
+                    cells[4] = c1;
+    //                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase("Mem. Id"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Date"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Reason"));
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+
+                    int rowNum = 0;
+
+                    while(rs.next())
+                    {
+                        /* +-----------+-------+-----+--------+------+------+------------+----------------------------+
+                           | Name      | Code  | Qty | Price  | Rack | M_Id | Date       | Reason                     |
+                           +--1--------+---2---+--3--+---4----+---5--+--6---+-----7------+-------------8--------------+
+                           | Java book | 10001 |   3 | 799.00 |    1 | 1004 | 2019-07-25 |   -                        |                
+                           | Cpp Book  | 10002 |   5 | 300.00 |    2 |   -  | 2019-07-25 | Gandhi ji ko de diye       |    
+                           +-----------+-------+-----+--------+------+------+------------+----------------------------+   */
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(1) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[0] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(2)));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(3) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase( "" + rs.getDouble(4) ));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(5) ));
+                        c1.setPaddingLeft(12.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[4] = c1;
+                        
+                        String memberId = "";
+                        try{
+                            memberId = ""+rs.getInt(6);        // It can be : memberId : rs.getInt(6) = "1002" or rs.getInt(6) = "  -"
+                        }catch(Exception e){
+                            memberId = "   -";
+                        }
+                        c1 = new PdfPCell(new Phrase( ""+ memberId ));
+                        c1.setPaddingLeft(6.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+                        
+                        String delDate = getDateAsMonDateYear(rs.getString(7));
+                        c1 = new PdfPCell(new Phrase( delDate ));   // rs.getString(7) : '2019-07-25' => delDate : 'July 25,19'...
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[6] = c1;
+						
+                        String reason = "";
+                        try{
+                            reason = ""+rs.getString(8);;        // It can be : reason : rs.getString(8) = "1002" or rs.getString(8) = "  -"
+                        }catch(Exception e){
+                            reason = "   -";
+                        }
+                        c1 = new PdfPCell(new Phrase( reason ));
+                        if( reason.length() < 5 )c1.setPaddingLeft(13.0f);
+                        else                     c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[7] = c1;
+                        /*  +-----------+-------+-----+--------+------+------+------------+----------------------------+
+                            | Name      | Code  | Qty | Price  | Rack | M_Id | Date       | Reason                     |
+                            +--1--------+---2---+--3--+---4----+---5--+--6---+-----7------+-------------8--------------+
+                            | Java book | 10001 |   3 | 799.00 |    1 | 1004 | 2019-07-25 |   -                        |                
+                            | Cpp Book  | 10002 |   5 | 300.00 |    2 |   -  | 2019-07-25 | Gandhi ji ko de diye       |    
+                            +-----------+-------+-----+--------+------+------+------------+----------------------------+   */
+
+                        
+                        rowNum++;
+                        if ((rowNum % 2) == 0){
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                        else {
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                    }
+
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                }catch(Exception e){
+                    msg = "----------- Some Information could not print Properly, Retry -----------";
+                    try {   dc.add(new Paragraph(msg));  }
+                    catch (Exception ee){   p("\nException in creteReport4(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+                    p("\n3453qq Exception in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());
+                }
+                return dc;
+            }
+            case 5:
+            {   /*  Query 1 : ResultSet Data...
+                    +--------------+---------+-------+-----------+--------+--------+-----------+
+                    | BookName     | BookQty | Code  | Available | Issued | Repair | Destroyed |
+                    +--------------+---------+-------+-----------+--------+--------+-----------+
+                    | Java book    |       3 | 10001 |         1 |      0 |      0 |         2 |
+                    | Cpp Book     |       5 | 10002 |         3 |      1 |      0 |         1 |
+                    | Cpp 1.17     |       5 | 10003 |         3 |      1 |      0 |         1 |
+                    | Visual Basic |       4 | 10004 |         4 |      0 |      0 |         0 |
+                    +--------------+---------+-------+-----------+--------+--------+-----------+
+
+                    Query 2:
+                        SELECT (Select count(*) from tbl_book_info) TotalBooks,
+                        (Select count(*) from tbl_books) TotalQty,
+                        (Select count(*) from tbl_books where status='A') Available,
+                        (Select count(*) from tbl_books where status='I') Issued,
+                        (Select count(*) from tbl_books where status='R') Repair,
+                        (Select count(*) from tbl_books where status='D') Destroyed;
+
+                    +------------+----------+-----------+--------+--------+-----------+
+                    | TotalBooks | TotalQty | Available | Issued | Repair | Destroyed |
+                    +------------+----------+-----------+--------+--------+-----------+
+                    |          4 |       17 |        10 |      2 |      1 |         4 |
+                    +------------+----------+-----------+--------+--------+-----------+     */
+
+                try{
+                    // p("--->Report 4: Combo4 :-> 5 Index Selected : 'All Books Details...'");
+
+                    msg = "Details of All of the Books of Library :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 8); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+
+                    PdfPCell c1 = new PdfPCell(new Phrase("Sr. No."));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Book Qty"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Code"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Avb."));
+                    cells[4] = c1;
     
+                    c1 = new PdfPCell(new Phrase(" Issued"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Repair"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Destroy"));
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+
+                    int rowNum = 0;
+
+                    while(rs.next())
+                    {
+                        
+                        /*      +----1---------+----2----+---3---+----4------+----5---+---6----+-----7-----+
+                        rs=     | BookName     | BookQty | Code  | Available | Issued | Repair | Destroyed |
+                                +--------------+---------+-------+-----------+--------+--------+-----------+    */
+                        
+                        c1 = new PdfPCell(new Phrase( "" + (++rowNum) ));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[0] = c1;
+
+                        c1 = new PdfPCell(new Phrase( rs.getString(1) ));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[1] = c1;
+
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(2) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase( "" + rs.getInt(3) ));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(4) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[4] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(5) ));
+                        c1.setPaddingLeft(10.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase( ""+rs.getInt(6) ));
+                        c1.setPaddingLeft(12.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[6] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(7) ));
+                        c1.setPaddingLeft(12.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[7] = c1;
+                        
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                                
+                            }
+                        else {
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                        }
+                    }
+                        dc.add(table);
+                        /*  +--------------+---------+-------+-----------+--------+--------+-----------+
+                            | BookName     | BookQty | Code  | Available | Issued | Repair | Destroyed |
+                            +--------------+---------+-------+-----------+--------+--------+-----------+   */
+                        Connection con = getDbConnObj();
+                        if(con != null){
+                            Statement st = con.createStatement();
+                            String sql= "Select (Select count(*) from tbl_books) TotalQty,  " +
+                                        "       (Select count(*) from tbl_books where status='A') Available,  " +
+                                        "       (Select count(*) from tbl_books where status='I') Issued,  " +
+                                        "       (Select count(*) from tbl_books where status='R') Repair,  " +
+                                        "       (Select count(*) from tbl_books where status='D') Destroyed;";
+                                /*  +----1-----+-----2-----+----3---+----4---+-----5-----+
+                                    | TotalQty | Available | Issued | Repair | Destroyed |
+                                rs= +----------+-----------+--------+--------+-----------+
+                                    |       17 |        10 |      2 |      1 |         4 |
+                                    +----------+-----------+--------+--------+-----------+   */
+                            rs = st.executeQuery(sql);
+                            rs.next();
+
+                            dc.add(new Paragraph(" "));
+                            msg = "               :) More Informations : ";
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Number of Books         : "+ rowNum;
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Total Qty. of Books     : "+ rs.getLong(1);
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Total Books Available : "+ rs.getLong(2);
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Total Books Issued      : "+ rs.getLong(3);
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Total Books on Repair  : "+ rs.getLong(4);
+                            dc.add(new Paragraph(msg));
+                            dc.add(new Paragraph(" "));
+                            msg = "                       *) Total Books Destroyed : "+ rs.getLong(5);
+                            dc.add(new Paragraph(msg));
+                        }
+                }catch(Exception e){
+                    msg = "----------- Some Information could not print Properly, Retry -----------";
+                    try {   dc.add(new Paragraph(msg));  }
+                    catch (Exception ee){   p("\nException in creteReport4(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+                    p("\nException in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());
+                }
+                return dc;
+            }
+        }
+        return dc;
+    }    
 }// Class Ended...
