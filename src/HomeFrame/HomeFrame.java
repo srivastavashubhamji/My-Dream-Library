@@ -7963,5 +7963,46 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             lblBkR_C_err.setForeground(new Color(250, 0, 0));
             showMsgOnLbl(e.getMessage(), lblBkR_C_err);
         }
-    }  
+    }
+    public void resetReportComps() {
+
+        if (checkRep_1.isSelected())
+            checkRep_1.doClick();
+        
+        if (checkRep_2.isSelected())
+            checkRep_2.doClick();
+        
+        checkRep_3.setSelected(false);
+        checkRep_4.setSelected(false);
+
+        comboRep1.setSelectedIndex(0);
+        comboRep2.setSelectedIndex(0);
+        comboRep3.setSelectedIndex(0);
+        comboRep4.setSelectedIndex(0);
+
+        repSub1.setBackground(new Color(240, 241, 240));
+        lblRepDt.setText("  ");
+        txtRepDD.setVisible(false);
+        txtRepMM.setVisible(false);
+        txtRepYYYY.setVisible(false);
+
+        repSub2.setBackground(new Color(240, 241, 240));
+        lblRepDt2.setText("  ");
+        txtRepDD2.setVisible(false);
+        txtRepMM2.setVisible(false);
+        txtRepYYYY2.setVisible(false);
+
+        reportErr.setForeground(new Color(255, 0, 0));
+        if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) {
+//      Membership Not Updated...            
+            reportErr.setText("OOPs...Connection Failed, Re-Start MySql Database !");
+            reportSubmit.setVisible(false);
+            reportReset.setVisible(false);
+        } else {
+            reportErr.setText("");
+            reportSubmit.setVisible(true);
+            reportReset.setVisible(true);
+        }
+    }
+
 }// Class Ended...
