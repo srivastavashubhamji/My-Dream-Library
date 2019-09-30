@@ -7798,7 +7798,28 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                 pnlBkI_B_sub1.setText("Return");  //  Return Book From 'S' OR 'T'
             }
             //  List box me This Member ko Issue ki gyi Book(s for 'T') ka Detail feed hone and Rel.Lbls Set hone k baad,
-            //  Submit karna h OR Next( fine Panel ) display Karaana hai...
+            //  Now just Submit and show next "Fine Panel"...
+        }
+        public void setPnlB_R_C_1() {	// Book_Return_subpanel_C_1
+            lblBk_R_C_mId.setText(lblBk_R_B_mId.getText());
+            lblBk_R_C_bId.setText(lblBk_R_B_bId.getText());
+            lblBk_R_C_mNm.setText(lblBk_R_B_mNm.getText());
+            lblBk_R_C_bNm.setText(lblBk_R_B_bNm.getText());
+            lblBk_R_C_mType.setText(lblBk_R_B_mType.getText());
+            lblBk_R_C_bAuth.setText(lblBk_R_B_bAuth.getText());
+            lblBk_R_C_bIssDt.setText(lblBk_R_B_bIssDt.getText());
+            lblBk_R_C_bLastDt.setText(lblBk_R_B_bLastDt.getText());
+            lblBk_R_C_bRetDt.setText(lblBk_R_B_bRetDt.getText());
+            lblBk_R_C_bDelay.setText(lblBk_R_B_bDelay.getText());   // 'n Days Late' OR 'On Time( n )'
+            comboBk_R_C.doClick();
+    //      Setting infos on SubPnls of BkRet_C_                    // Index=  012345678901234
+            String data = lblBk_R_C_bDelay.getText();                // data = "Late: 10 Day(s)"
+            String start = data.substring(6);                       // start =      "10 Day(s)"
+            int numDays = Integer.parseInt(start.substring(0, start.indexOf(" ")));//     10
+            lblFineInfo.setText("Fine for " + numDays + " day(s)");
+            lblFineCalc.setText("Rs 2 x " + numDays);
+            lblBk_R_C_1_Total.setText("Rs " + (2 * numDays));
+            lblBk_R_B_bLastDt1.setText(lblBk_R_B_bLastDt.getText());
         }
     
 }// Class Ended...
