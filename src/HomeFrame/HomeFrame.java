@@ -7608,6 +7608,23 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                 return results;
             }
         }
-    
-    
+        public String[] getRetBooksRecords() {
+
+            String timeStatus, listVal = "1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^2019-06-21^^^2019-07-22^^^2019-08-01^^^10";
+            p("\tReached listBkShow1.setModel(fun getIssRetBooksRecords())");
+            //               "1002   Shubhu   T   10002   101   Cpp Book   Kallo   2019-06-21   2019-07-22   2019-08-01   10";
+            //          temp [  0       1     2     3      4        5        6          7           8            9        10  ];
+            String[] results = null;                    // Storing ArrayList Elements to String Array for parameters
+            String[] arrBkRet = null;
+            results = new String[listBkRet.size()];
+            int i;
+            for (i = 0; i < listBkRet.size(); i++) {
+    //  'arrBkRet' will Become : Array of 11 String Objects
+                arrBkRet = (listBkRet.get(i)).split("([\\^\\^\\^]+)");
+                timeStatus = getTimeLeftToReturn(Integer.parseInt(arrBkRet[10]));
+                results[i] = arrBkRet[5] + " [" + arrBkRet[3] + " (" + arrBkRet[4] + ") ]-" + arrBkRet[6] + ", " + arrBkRet[7] + " to " + arrBkRet[8] + ", (" + timeStatus + ")";
+            }
+            return results;
+        }
+
 }// Class Ended...
