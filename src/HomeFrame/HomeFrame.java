@@ -8071,5 +8071,140 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         else
             return false;
     }
+    public String getOrderByForIndOfR3C1(int selIndRep3Combo1){
+        //  Method to return SQL Statement i.e. "order by xyz"
+        /*  Return 'Order by X,Y,Z' for 'selIndRep3Combo1' (B/w 1 to 7) selection of "Rep3Combo1"...
+            Combo1_ Items :
+                Select Criteria -  0
+                Active Students -  1
+                Active Teachers -  2
+                Active Members  -  3
+                Inactive Student-  4
+                Inactive Teacher-  5
+                Inactive Member -  6
+                All Members     -  7
+           Option in "comboRepSort3" -> 'Name' || 'Class' ||'Id'     */
+            int selIndRep3Sort = comboRepSort3.getSelectedIndex();
+            switch(selIndRep3Combo1){
+                case 1:{        /*  'Active Students' Selected - Sort By 'Name' || 'Class' || 'Id' || 'LastSeen'
+                                     +------+-------+------+------+------------+-----------+-----------+
+                                     | M_id | Mname | cls  | rno  | mPh1       | mAddr     | LastSeen  |
+                                     +------+-------+------+------+------------+-----------+-----------+
+                                    Rep3_Combo1_1 : Sort By 'Name' || 'Class' || 'Id' || 'Last Seen'
+                                */
+                    if(selIndRep3Sort == 0)
+                        return " order by Mname";
+                    else if(selIndRep3Sort == 1)
+                        return " order by cls,rno";
+                    else if(selIndRep3Sort == 2)
+                        return " order by m_id";
+                    else
+                        return " order by LastSeen Desc,cls";
+                }
+                case 2:{
+            //  Rep3Combo 1_2 : Active Teachers - Sort By 'Name' || 'Class' || 'Id' || 'LastSeen'
+            //    +------+-----------+------------+------------+-------------+-----------+
+            //    | M_id | Mname     | mPh1       | Ph2        | mAddr       | LastSeen  |
+            //    +------+-----------+------------+------------+-------------+-----------+
+            //    | 1009 | Priyanshi | 8787878787 | 7676767676 | Bazaar      | 25 Jun,19 |
+            //    | 1008 | shubh     | 9898989898 |   -        | bihar,patna | 19 Jul,19 |
+            //    +------+-----------+------------+------------+-------------+-----------+
+    
+                    if( selIndRep3Sort == 0 )
+                        return " order by Mname,LastSeen desc";
+                    else if( selIndRep3Sort == 2 )
+                        return " order by m_id";
+                    else if( selIndRep3Sort == 3 )
+                        return " order by LastSeen Desc,Mname";
+                    else
+                        return " order by Mname,rno";
+                }
+                case 3:{
+            //    Rep3Combo 1_3 : 'Active Members'  - Sort By 'Name' || 'Class' ||'Id' || 'LastSeen'
+            //    STUDENTs have (..., cls, rno, ... ) while 
+            //    TEACHERs have ( .., ...)
+            //    +------+-----------+------+------+------+------------+-------------+------------+
+            //    | M_id | Mname     | cls  | rno  | Type | mPh1       | mAddr       | LastSeen   |
+            //    +------+-----------+------+------+------+------------+-------------+------------+
+            //    | 1004 | Jitu      | BCA  | 4    | Stu. | 9879879878 | Boharapur   | 2019-07-02 |
+            //    | 1006 | Mina      | BCA  | 8    | Stu. | 9898989898 | Hinsaran    | 2019-07-15 |
+            //    | 1007 | Rohit     | MBA  | 1    | Stu. | 9879879878 | Padri       | 2019-07-15 |
+            //    | 1010 | Bhatt     | -    | -    | Fac. | 9879879878 | basharatpur | 2019-07-09 |
+            //    | 1011 | Durgesh   | -    | -    | Fac. | 7676766666 | Nimsaran    | 2019-05-11 |
+    
+                    if( selIndRep3Sort == 0 )
+                        return " order by mType, mName, cls";
+                    else if( selIndRep3Sort == 1 )
+                        return " order by mType, cls, rno";
+                    else if( selIndRep3Sort == 2 )
+                        return " order by mType,m_id";
+                    else
+                        return " order by mType,LastSeen desc,mName";
+                }
+                
+               
+                case 4:{
+    //          Rep3combo1_4 : Inactive Students - Sort By 'Name' || 'Class' ||'Id' || 'LastSeen'
+    //            +------+---------+--------+------+------------+------------+--------+------------+
+    //            | M_id | Mname   | cls    | rno  | mPh1       | doj        | P.F.   | LastSeen   |
+    //            +------+---------+--------+------+------------+------------+--------+------------+
+                    if(selIndRep3Sort == 0)
+                        return " order by Mname";
+                    if(selIndRep3Sort == 1)
+                        return " order by cls,rno";
+                    else if(selIndRep3Sort == 2)
+                        return " order by M_id";
+                    else 
+                        return " order by LastSeen Desc,Mname"; 
+                }
+                case 5:{
+    //          Rep3combo1_5 : Inactive Teachers - Sort By 'Name' || 'Class' ||'Id' || 'LastSeen'
+    //            +------+-------+------------+------------+------+------------+
+    //            | M_id | Mname | mPh1       | doj        | P.F. | LastSeen   |
+    //            +------+-------+------------+------------+------+------------+
+                    if(selIndRep3Sort == 0)
+                        return " order by Mname";
+                    if(selIndRep3Sort == 3)
+                        return " order by LastSeen Desc,Mname";
+                    else if(selIndRep3Sort == 2)
+                        return " order by M_id";
+                    else 
+                        return " order by cls,rno";
+                }
+                case 6:{
+    //          combo1_6 : Inactive Member -  Sort By 'Name' || 'Class' ||'Id' || 'LastSeen'
+    //            +------+---------+--------+------+------+------------+------------+------------+
+    //            | M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+    //            +------+---------+--------+------+------+------------+------------+------------+
+    
+                    if(selIndRep3Sort == 0)
+                        return " order by mType,Mname";
+                    if(selIndRep3Sort == 1)
+                        return " order by mType,cls,rno";
+                    else if(selIndRep3Sort == 2)
+                        return " order by mType,M_id";
+                    else
+                        return " order by mType, LastSeen desc, Mname";
+                }
+    
+                case 7:{
+    //          combo 7_ : All Members - Sort By 'Name' || 'Class' ||'Id' || 'LastSeen'
+    //                    +------+---------+--------+------+------+------------+------------+-----------+
+    //                    | M_id | Mname   | cls    | rno  | Type | Ph1        | doj        | LastSeen  |
+    //                    +------+---------+--------+------+------+------------+------------+-----------+
+                    if(selIndRep3Sort == 0)
+                        return " order by mType,Mname,cls,rno";
+                    if(selIndRep3Sort == 1)
+                        return " order by mType,cls,rno";
+                    if(selIndRep3Sort == 2)
+                        return " order by mType,m_id";
+                    else
+                        return " order by mType,LastSeen desc";
+                }
+                default:{
+                    return " order by mType,cls";
+                }
+            }        
+        }
 
 }// Class Ended...
