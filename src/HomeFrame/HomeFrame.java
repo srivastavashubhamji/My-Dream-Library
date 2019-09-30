@@ -7717,4 +7717,23 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         lblBk_I_C_bAvb1.setText("" + nextAbl);
     }
 
+    public void setComps_DelBk_B_OnListChange() {                                                                                           /*
+        Desc              : b_acc_id    Book        Qty     Type      Author    Price    Issued    Repairing     Destroyed  Available ... b_acc_id    Book    Qty .....
+        rowData[0->9]     :    10001   Java book     3   Programming   lala     799.00       1           0            0        2      ...  10003      Cpp      5  .....
+        rowData's Indices :   [ 0       1            2      3            4        5          6           7            8        9   ]; ... [  10        11      12  .....
+        In JListBox : 0th Index'll hold :-> Java book [ 10001 ](Programming) - lala : 799.00
+        Index at List                   :->     1         0          3          4       5                                                   */
+        int selInd = listBkDel_B.getSelectedIndex();
+        //          Global Object: listBkRet[n].get(0) = "10001^^^Java book^^^3^^^Programming^^^lala^^^799.00^^^1^^^0^^^0^^^2"
+        String []rowData = (listBkRet.get( selInd )).split("([\\^\\^\\^]+)");
+        //          rowData[0->9]     :    10001   Java book     3   Programming   lala     799.00       1           0            0        2      ...  10003      Cpp      5  .....
+        //          rowData's Indices :   [ 0       1            2      3            4        5          6           7            8        9   ]; ... [  10        11      12  .....
+
+            lblBk_D_B_bId.setText(   rowData[0]);
+            lblBk_D_B_bName.setText( rowData[1]);
+            lblBk_D_B_bAuth.setText( rowData[4]);
+            lblBk_D_B_bType.setText( rowData[6]);
+            lblBk_D_B_bAvb.setText(  rowData[9]);
+    }
+    
 }// Class Ended...
