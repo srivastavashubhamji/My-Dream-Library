@@ -7735,5 +7735,16 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             lblBk_D_B_bType.setText( rowData[6]);
             lblBk_D_B_bAvb.setText(  rowData[9]);
     }
-    
+    public String getTimeLeftToReturn(int val) {
+        // Possible Values of 'Val' = ... -2,-1,0,1,2, ...
+        String timeStatus = "";
+        if (val < 0) // Late
+        {
+            return ((val * (-1)) + " Days LATE");
+        } else // On Time
+        {
+            return (val + " Days Left");
+        }
+    }
+
 }// Class Ended...
