@@ -8305,5 +8305,480 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             String timeStamp = "" + arr[1] + " " + arr[2] + ", " + arr[5];
             return timeStamp;
         }
+        public String getReportQueryFor(int selBox){
+            // This method Returns ReportQuery for : 'selBox' JCheckboxNum and rel. 'comboboxes'...
+            
+                switch (selBox) {
+                    p("\ngetReportQueryFor(int selBox) ... invoked");
+                    case 0:                                  // Report's 1st CheckBox is Selected... 'List of All overdue Issued books'
+                    {                                        //  ** Debug Query : select * from bktrans ;  -- Then see propDate and fill Fields of Form's 1st Report -:
+                        String preFix, inFix, suFFix, sql="";
+                        String dd = txtRepDD.getText();
+                        String mm = txtRepMM.getText();
+                        String yyyy = txtRepYYYY.getText();
+                        
+                        preFix = "Select c.b_name Book, m.mName Member, b.m_Id M_Id,"
+                                + "m.cls 'Class', m.rno Rno,"
+                                + "date_format(b.m_issDt,'%b %d,%y') IssuedOn, date_format(b.m_propDt, '%b %d,%y') LastDate,"
+                                + "datediff(b.m_propDt,sysdate()) 'Left', m.mPh1 Phone  "
+                                + "from bktrans b,mems m ,tbl_book_info c  ";
         
+                        if (comboRep1.getSelectedIndex() == 1)		//  At Given Date... '='
+                            inFix = " where b.m_propDt = '" + yyyy + "-" + mm + "-" + dd
+                                    + "' and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null ";
+                        else//  After Given Date... '>'
+                            inFix = " where b.m_propDt > '" + yyyy + "-" + mm + "-" + dd
+                                    + "' and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null ";
+                        
+                        suFFix = "";
+                        if (comboRepSort1.getSelectedIndex() == 0)	//  Sort by Book name ...
+                            suFFix = " order by m.mtype, c.b_name;";
+                        
+                        if (comboRepSort1.getSelectedIndex() == 1) 	//  Sort by Member name ...
+                            suFFix = " order by m.mtype, m.mName,b.m_Id;";
+                        
+                        if (comboRepSort1.getSelectedIndex() == 2) 	//  Sort by Last Date ...
+                            suFFix = " order by m.mtype, b.m_propDt, m.mName,b.m_Id;";
+                        
+                        sql = preFix + inFix + suFFix;
+                        p("Report 1: 1_ ->" + sql);
+                                                            //  sql = "Select c.b_name Book, b.b_acc_id B_id, m.mName Member, b.m_Id M_Id,(CASE WHEN m.mType='S' THEN (Select 'Stu.') ELSE (Select 'Fac.') END ) as 'Type', date_format(b.m_issDt,'%b %d,%y') IssuedOn, date_format(b.m_propDt, '%b %d,%y') LastDate, m.mPh1 Phone  from bktrans b,mems m ,tbl_book_info c  where b.m_propDt = '2019-08-02' and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null  order by b.m_Id;";
+                                                            //  inFix =  "where b.m_propDt = '2019-08-02' and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null  order by m.mtype, b.m_Id;";
+                                                            //  suFFix = " order by m.mtype, b.b_acc_id;";
+                        return sql;
+                    }
+        
+                    case 1:                                 // Report's 2nd CheckBox is Selected... 'List of Members whose MemShip Expires...'
+                    {
+                        // This Case will fetch and Return Query : Memberships_Expiry_Details :- For Reports 2nd CheckBoxSelection :
+                        // ** Debug Query : select mname,doPFee ,(date_add(doPFee , interval 180 day)) Expiry from mems order by Expiry;
+                        String prefix, infix, suffix, sql = "";
+                        String dd = txtRepDD2.getText();
+                        String mm = txtRepMM2.getText();
+                        String yyyy = txtRepYYYY2.getText();
+        
+                        prefix = "Select m_id 'M.Id',mname 'Member', mPh1 'Contact No', (case when cls is null then '-' else cls end) 'Class',(case when rno is null then '-' else rno end) 'Rno',date_format(doPFee, '%b %d,%y') 'Last Paid',date_format(( Date_Add(doPFee, Interval 180 day)), '%b %d,%y') 'Expire On' ,datediff( Date_Add(doPFee, Interval 180 day),Date(sysdate())) 'Left' from mems  where  m_id in (select m_id ";
+        
+                        if (comboRep2.getSelectedIndex() == 1)       // At this Date
+                            infix = "from (SELECT m_id, (case when (date_add( Inn.doPFee ,interval 180 day) = '" + yyyy + "-" + mm + "-" + dd + "') then 1 else 0 end ) isExpire from mems Inn ) temp where temp.isExpire = 1) ";
+                        else
+                            infix = "from (SELECT m_id, (case when (date_add( Inn.doPFee ,interval 180 day) < '" + yyyy + "-" + mm + "-" + dd + "') then 1 else 0 end ) isExpire from mems Inn ) temp where temp.isExpire = 1) ";
+                        
+                        if (comboRepSort2.getSelectedIndex() == 0) // Sort by Member 'mName'
+                            suffix = "order by mname;";
+                        else
+                            suffix = "order by 'Left';";           // Sort by Days 'Left'
+                        
+                        sql = prefix + infix + suffix;
+                        p("\nReport 2    :->" + sql);
+                        return sql;
+                    }
+                    
+                    case 2:                                        // Report's 3rd CheckBox is Selected... 'List of All Member...'
+                    {
+                        String prefix = "",infix = "",suffix = "",sql = "";
+                        /*  ComboBox1_ Items :
+                            Select Criteria -  0
+                            Active Students -  1
+                            Active Teachers -  2
+                            Active Members  -  3
+                            Inactive Student-  4
+                            Inactive Teacher-  5
+                            Inactive Member -  6                
+                            All Members     -  7    */
+                        int selIndCombo1 = comboRep3.getSelectedIndex();
+                        if( selIndCombo1 == 1) {
+        
+                            
+                            //p("\nSearching : - Active Students - 1 :- Select Only Active Students");
+                            prefix= "Select  M_id, Mname, "+
+                                        "(case when cls is null then '-' else cls end) cls, "+
+                                        "(case when rno = 0 then '-' else rno end) rno, "+
+                                         "mPh1, mAddr, "+
+                                        "(CASE "+
+                                            "When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null ) "+
+                                            "THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 ) "+
+                                            "WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL ) "+
+                                            "THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1 )"+
+                                            "ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                        "END) LastSeen from mems m ";
+                            infix = "Where mStatus = 'A' and mtype='S' ";
+                            suffix = getOrderByForIndOfR3C1 (selIndCombo1);
+                                        //   getOrderByForIndOfR3C1(_) Returns:- 'Sorting Criteria' A/c to Passed Selected Index of Report3_combo1:
+                                        //   Which index of comboRepSort3 is select : Return proper 'Order by x,y,z'
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else if(selIndCombo1 == 2) {
+                        // Active Teachers -  2 :- Select Only Active Teachers
+                            // p("\n\nsearching :- Active Teachers -  2 :- Select Only Active Teachers");
+                            prefix= "Select  M_id, Mname,"+ 
+                                        "mPh1,  "+
+                                        "(case when mPh2 is null then '  -'  "+
+                                                    "else mPh2  "+
+                                            "end) Ph2,  "+
+                                        "mAddr,  "+
+                                        "(CASE  "+
+                                                "When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null )  "+
+                                                "THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 )  "+
+                                                "WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL )  "+
+                                                "THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1)  "+
+                                                "ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1)  "+
+                                        "END) LastSeen  "+
+                                    "from mems m "+
+                                    "where mtype='T' and mstatus = 'A' ";
+                            suffix = getOrderByForIndOfR3C1( selIndCombo1 );         // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else if(selIndCombo1 == 3) {
+                        // Active Members -  3 :- Select Only Active Members
+                            // p("\n\nSearching :- Active Members -  3 :- Select Only Active Members");
+        
+                            prefix= "Select  M_id, Mname, "+ 
+                                        "(case when cls is null then '-' else cls end) cls, "+
+                                        "(case when rno = 0 then '-' else rno end) rno, "+
+                                        "(CASE WHEN mType='S' THEN (Select 'Stu.') ELSE (Select 'Fac.') END ) as 'Type', "+
+                                         "mPh1, mAddr, "+
+                                        "(CASE "+
+                                                "When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null )"+
+                                                "THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 ) "+
+                                                "WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL) "+
+                                                "THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) "+
+                                                "ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                        "END) LastSeen "+
+                                    "from mems m "+
+                                    "where mstatus = 'A' ";
+                            suffix = getOrderByForIndOfR3C1(selIndCombo1);          // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else if(selIndCombo1 == 4) {
+                        // InActive Students -  4 :- Select Only InActive Students
+        
+                            // p("\n\nSearching :- InActive Students -  4 :- Select Only InActive Students");
+                            prefix = "Select m.M_id, m.Mname, m.cls, m.rno, m.mPh1, m.doj, m.mProtectFee 'P.F.' , "+
+                                            "(CASE When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null ) "+
+                                            "	THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 ) "+
+                                            "	WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL) "+
+                                            "	THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) "+
+                                            "	ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                            "END) LastSeen "+
+                                    "from mems m "+
+                                    "where mType='S' and mStatus='I' ";                    
+                            suffix = getOrderByForIndOfR3C1(selIndCombo1);               // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else if(selIndCombo1 == 5) {
+                        // InActive Teachers -  5 :- Select Only InActive Teachers
+                            // p("\n\n Searchig InActive Teachers -  5 :- Select Only InActive Teachers");
+        
+                            prefix = "Select m.M_id, m.Mname, m.mPh1, m.doj, m.mProtectFee 'P.F.' , "+
+                                            "(CASE When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null ) "+
+                                            "	THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 ) "+
+                                            "	WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL) "+
+                                            "	THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) "+
+                                            "	ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                            "END) LastSeen "+
+                                    "from mems m "+
+                                    "where mType='T' and mStatus='I'";
+                            suffix = getOrderByForIndOfR3C1(selIndCombo1);         // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else if(selIndCombo1 == 6) {
+                        // All InActive Members 6 :- Select All InActive Members
+                            // p("\n\n Searching All InActive Members 6 :- Select All InActive Members");
+        
+                            prefix = "Select m.M_id, m.Mname, "+
+                                            "(case when cls is null then '-' else cls end) cls, "+
+                                            "(case when rno = 0 then '-' else rno end) rno, "+
+                                            "(CASE WHEN mType='S' THEN (Select 'Stu.') ELSE (Select 'Fac.') END ) as 'Type', "+
+                                            "m.mPh1, m.doj, "+
+                                            "(CASE When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null ) "+
+                                            "	THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 ) "+
+                                            "	WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL) "+
+                                            "	THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1)  "+
+                                            "	ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                            "END) LastSeen "+
+                                    "from mems m "+
+                                    "where mStatus='I'";
+                            suffix = getOrderByForIndOfR3C1(selIndCombo1);         // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        else{   // comboRep3.getSelectedIndex() == 7) {
+        // All Members : 7 :- Selects All Members
+                            // p("\n\n Searching := All Members : 6 :- Selects All Members");
+        
+                            prefix= "Select m.M_id, m.Mname, "+
+                                        "(CASE when cls is null then '-' else cls end) cls, "+
+                                        "(CASE when rno = 0 then '-' else rno end) rno, "+
+                                        "(CASE WHEN mType='S' THEN (Select 'Stu.') ELSE (Select 'Fac.') END ) as 'Type', "+
+                                        "m.mPh1 Ph1, "+
+                                        "m.doj,	 "+
+                                        "(CASE When ((Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1) is not null ) "+
+                                        "    THEN( Select b.m_actRetDt from bktrans b where b.m_id = m.m_Id limit 1 )  "+
+                                        "    WHEN ((Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1) IS not NULL) "+
+                                        "    THEN ( Select b.m_issDt from bktrans b where b.m_id = m.m_Id limit 1)  "+
+                                        "    ELSE (Select m2.doj from mems m2 where m2.m_id = m.m_Id limit 1) "+
+                                        "END) LastSeen "+
+                                "FROM mems m";
+                            suffix = getOrderByForIndOfR3C1( selIndCombo1 );         // checks which index of comboRepSort3 is select : then Return
+                            sql = prefix + infix + suffix;
+                            // p("\n-->Report Query : 3)\n\n"+sql);
+                        }
+                        return sql;
+                    }
+                    
+                    case 3:                                // Report 4 was Checked...'List of All Books that Are...'
+                    {
+                        String prefix = "", infix = "", suffix = "", sql = "";
+                        
+                        int comboInd = comboRep4.getSelectedIndex();
+                        int orderSelInd = comboRepSort4.getSelectedIndex();
+                        
+                        switch(comboInd)
+                        {
+                            case 1:    // that are 'Available'...
+                            {   prefix= "Select a.b_Name Name, a.b_acc_id Code, a.b_qty Qty, a.b_auth1 'Author 1', a.b_auth2 'Author 2', a.b_price Price, a.b_rack Rack, "+
+                                            "SUM(Case "+
+                                                "When b.status='A' Then 1 "+
+                                                "Else 0 "+
+                                                "End "+
+                                                ") as Available "+
+                                       "From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid ";
+                                infix = "Where b.status = 'A' Group By a.b_name, a.b_qty, a.b_acc_id ";
+                        
+                                // 0 - Sort By Date,
+                                // 1 - Sort By Cost,
+                                // 2 - Sort By Rack,
+                                // 3 - By Book Id
+                                /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                                    | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | Available |
+                                    +-----------+-------+-----+----------+----------+--------+------+-----------+    */
+        
+                                if(orderSelInd == 1)
+                                    suffix = "Order by a.b_price desc, a.b_auth2";                        
+                                else if(orderSelInd == 2)
+                                    suffix = "Order by a.b_rack, a.b_auth2";
+                                else if(orderSelInd == 3)
+                                    suffix = "Order by a.b_acc_id, a.b_auth2";
+                                else //if(orderSelInd == 0)
+                                    suffix = "Order by a.b_Name";
+        
+                                sql = prefix + infix + suffix ;
+                                p("\nReport 4: Combo 1 : 1st Selected...Sql = \n\n"+sql);
+                                return sql;
+                            }
+        
+                            case 2:    // that are 'Issued'...
+                            {
+                                prefix ="Select c.b_Name Name, b.b_acc_id BookCode, m.mName Member, b.m_id M_Id, "+
+                                            "(CASE WHEN m.mType='S' "+
+                                                "THEN (Select 'Stu.') "+
+                                                "ELSE (Select 'Fac.')"+
+                                                "END ) as 'Type', "+
+                                            "date_format(b.m_issDt,'%b %d,%Y') issuedOn, "+
+                                            "date_format( b.m_propDt,'%b %d,%Y' ) LastDate, "+
+                                            "datediff( b.m_propDt , Date(Sysdate()) ) DaysLeft "+
+                                        "From bktrans b, mems m ,tbl_book_info c  ";
+                                infix = "where b.m_actRetDt is null and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id ";
+                        
+                                // 0 - Sort By Date,
+                                // 1 - Sort By Cost,
+                                // 2 - Sort By Rack,
+                                // 3 - By Book Id
+                                /*  +-----------+----------+---------+------+------+-------------+-------------+----------+
+                                    | Name      | BookCode | Member  | Type | M_Id | issuedOn    | LastDate    | DaysLeft |
+                                    +-----------+----------+---------+------+------+-------------+-------------+----------+    */
+        
+                                if(orderSelInd == 0)
+                                    suffix = "Order by DaysLeft";
+                                else if(orderSelInd == 3)
+                                    suffix = "Order by c.b_acc_id, DaysLeft";
+                                else //(orderSelInd == 1 || 2 )
+                                    suffix = "Order by c.b_Name";
+                                
+                                sql = prefix + infix + suffix ;
+                                p("\nReport 4: Combo 1 : 2nd Selected...Sql = \n\n"+sql);
+                                return sql;
+        
+                            }
+        
+                            case 3:    // that are 'On Repairing'...
+                            {
+                                prefix ="Select a.b_Name Name, a.b_acc_id Code, a.b_qty Qty, a.b_auth1 'Author 1', a.b_auth2 'Author 2', a.b_price Price, a.b_rack Rack, "+
+                                        "    SUM(case  "+
+                                        "       when b.status='R' then 1 "+
+                                        "       else 0 "+
+                                        "       end "+
+                                        "   ) as 'On Repair'  "+
+                                        "From tbl_book_info a left join tbl_books b on a.b_acc_id=b.accid ";
+                                infix = "Where b.status = 'R' "+
+                                        "Group by a.b_name, a.b_qty, a.b_acc_id ";
+                        
+                                // 0 - Sort By Date,
+                                // 1 - Sort By Cost,
+                                // 2 - Sort By Rack,
+                                // 3 - By Book Id
+                                /*  +-----------+-------+-----+----------+----------+--------+------+-----------+
+                                    | Name      | Code  | Qty | Author 1 | Author 2 | Price  | Rack | On Repair |
+                                    +-----------+-------+-----+----------+----------+--------+------+-----------+    */
+        
+                                if(orderSelInd == 1)
+                                    suffix = "Order by a.b_price desc, a.b_qty desc";
+                                else if(orderSelInd == 2)
+                                    suffix = "Order by a.b_rack, a.b_qty desc";
+                                else if(orderSelInd == 3)
+                                    suffix = "Order by a.b_acc_id, a.b_qty desc";
+                                else //if(orderSelInd == 0)
+                                    suffix = "Order by a.b_Name ";
+                                
+                                sql = prefix + infix + suffix ;
+                                // p("\nReport 4: Combo 1 : 3rd Selected...Sql = \n\n"+sql);
+                                return sql;
+                            }
+        
+                            case 4:    // that are 'Destroyed'...
+                            {
+                                prefix= "Select a.b_Name 'Name', "+
+                                        "   a.b_acc_id 'Code', "+
+                                        "   a.b_qty 'Qty', "+
+                                        "   a.b_price 'Price', "+
+                                        "   a.b_rack 'Rack', "+
+                                        "   ( CASE  WHEN (d.m_id is Null ) THEN '  -' ELSE ( d.m_id ) END ) 'M_Id', "+
+                                        "   d.delDate 'Date', "+
+                                        "   ( CASE  WHEN (d.reason is Null ) THEN '  -'ELSE ( d.reason ) END ) 'Reason' "+
+                                        "From tbl_book_info a, "+
+                                        "   tbl_books b, "+
+                                        "   mems m, "+
+                                        "   bkdel d "+
+                                        "Where d.accid = a.b_acc_id and d.accid = b.accid and d.accno = b.accno and (d.m_id = m.m_Id or (d.m_id is null)) ";
+                                infix = "Group by b.accid, b.accno  ";
+                        
+                                // 0 - Sort By Date,
+                                // 1 - Sort By Cost,
+                                // 2 - Sort By Rack,
+                                // 3 - By Book Id
+                                
+                                /*  +-----------+-------+-----+--------+------+------+------------+------------+
+                                    | Name      | Code  | Qty | Price  | Rack | M_Id | Date       | Reason     |
+                                    +-----------+-------+-----+--------+------+------+------------+------------+    */
+        
+                                if(orderSelInd == 0)
+                                    suffix = "Order by d.delDate desc, d.reason";
+                                if(orderSelInd == 1)
+                                    suffix = "Order by a.b_price desc, d.reason";
+                                else if(orderSelInd == 2)
+                                    suffix = "Order by a.b_rack, d.reason";
+                                else
+                                    suffix = "Order by a.b_acc_id, d.reason";
+                                
+                                sql = prefix + infix + suffix ;
+                                p("---> Report 4: Combo : 4th Selected, Sql = \n"+ sql);
+                                return sql;
+                            }
+                            case 5:    // 'Select All Books'...
+                            {
+                                /*	What will the Query exactyly do...see below
+                                "Set @counter := 0, @counterQty := 0, @counterAvb := 0, @counterIss := 0, @counterRep := 0 ,@counterDes := 0; "+
+                                "Select * "+
+                                "From (SELECT  "+
+                                "        (Select (@counter := (@counter + 1) ) ) 'Sr.No.', "+
+                                "        testt.BookName, "+
+                                "        testt.BookQty, "+
+                                "        testt.Code,  "+
+                                "        testt.Available,  "+
+                                "        testt.Issued,  "+
+                                "        testt.Repair,  "+
+                                "        testt.Destroyed, "+
+                                "        (@counterQty := @counterQty + testt.BookQty ) TotalQty,	 "+
+                                "        (@counterAvb := @counterAvb + testt.Available ) TotalAvb,  "+
+                                "        (@counterIss := @counterIss + testt.Issued ) TotalIss,	 "+
+                                "        (@counterRep := @counterRep + testt.Repair ) TotalRep,	 "+
+                                "        (@counterDes := @counterDes + testt.Destroyed ) TotalDest  "+
+                                "      From (Select a.b_name BookName, a.b_qty BookQty, a.b_acc_id Code,  "+
+                                "                SUM(case  when b.status='A' then 1 else 0 end) as Available,  "+
+                                "                SUM(case  when b.status='I' then 1 else 0 end) as Issued,  "+
+                                "                SUM(case  when b.status='R' then 1 else 0 end) as Repair,  "+
+                                "                SUM(case  when b.status='D' then 1 else 0 end) as Destroyed "+ 
+                                "           From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid  "+
+                                "           GROUP BY a.b_name, a.b_qty, a.b_acc_id order by a.b_acc_id "+
+                                "      )testt "+
+                                " )Main; ";
+                                                        Or 
+                                In One line -: Select * From (SELECT          (Select (@counter := (@counter + 1) ) ) 'Sr.No.',         testt.BookName,         testt.BookQty,         testt.Code,          testt.Available,          testt.Issued,          testt.Repair,          testt.Destroyed,         (@counterQty := @counterQty + testt.BookQty ) TotalQty,         (@counterAvb := @counterAvb + testt.Available ) TotalAvb,         (@counterIss := @counterIss + testt.Issued ) TotalIss,         (@counterRep := @counterRep + testt.Repair ) TotalRep,         (@counterDes := @counterDes + testt.Destroyed ) TotalDest       From (Select a.b_name BookName, a.b_qty BookQty, a.b_acc_id Code,                 SUM(case  when b.status='A' then 1 else 0 end) as Available,                 SUM(case  when b.status='I' then 1 else 0 end) as Issued,                 SUM(case  when b.status='R' then 1 else 0 end) as Repair,                 SUM(case  when b.status='D' then 1 else 0 end) as Destroyed            From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid            GROUP BY a.b_name, a.b_qty, a.b_acc_id       Order by a.b_name      )testt  )Main; 
+                                But UnFortunately ^ this Long Query could not fetched by Java.ResultSet... So these Two Queries are used...
+                                            
+                                    "Select a.b_name BookName, a.b_qty BookQty, a.b_acc_id Code, "+
+                                    "	SUM(case  when b.status='A' then 1 else 0 end) as Available, "+
+                                    "	SUM(case  when b.status='I' then 1 else 0 end) as Issued, "+
+                                    "	SUM(case  when b.status='R' then 1 else 0 end) as Repair, "+
+                                    "	SUM(case  when b.status='D' then 1 else 0 end) as Destroyed "+
+                                    "From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid "+
+                                    "GROUP BY a.b_name, a.b_qty, a.b_acc_id order by a.b_acc_id ; "
+        
+                                    +--------------+---------+-------+-----------+--------+--------+-----------+
+                                    | BookName     | BookQty | Code  | Available | Issued | Repair | Destroyed |
+                                    +--------------+---------+-------+-----------+--------+--------+-----------+
+                                    | Java book    |       3 | 10001 |         1 |      0 |      0 |         2 |
+                                    | Cpp Book     |       5 | 10002 |         3 |      1 |      0 |         1 |
+                                    | Cpp 1.17     |       5 | 10003 |         3 |      1 |      0 |         1 |
+                                    | Visual Basic |       4 | 10004 |         4 |      0 |      0 |         0 |
+                                    +--------------+---------+-------+-----------+--------+--------+-----------+
+                                    
+                                    Query 2:
+                                    SELECT (Select count(*) from tbl_book_info) TotalBooks,
+                                        (Select count(*) from tbl_books) TotalQty,
+                                        (Select count(*) from tbl_books where status='A') Available,
+                                        (Select count(*) from tbl_books where status='I') Issued,
+                                        (Select count(*) from tbl_books where status='R') Repair,
+                                        (Select count(*) from tbl_books where status='D') Destroyed;
+                                        
+                                        +------------+----------+-----------+--------+--------+-----------+
+                                        | TotalBooks | TotalQty | Available | Issued | Repair | Destroyed |
+                                        +------------+----------+-----------+--------+--------+-----------+
+                                        |          4 |       17 |        10 |      2 |      1 |         4 |
+                                        +------------+----------+-----------+--------+--------+-----------+
+                                */
+                                //                        prefix= "Set @counter := 0, @counterQty := 0, @counterAvb := 0, @counterIss := 0, @counterRep := 0 ,@counterDes := 0; ";
+                                //                        
+                                //                        runReport4(prefix);     // Sets the Session Variables For the Report4Query5...
+                                
+                                prefix= "Select a.b_name BookName, a.b_qty BookQty, a.b_acc_id Code, "+
+                                        "   SUM(case  when b.status='A' then 1 else 0 end) as Available, "+
+                                        "   SUM(case  when b.status='I' then 1 else 0 end) as Issued, "+
+                                        "   SUM(case  when b.status='R' then 1 else 0 end) as Repair, "+
+                                        "   SUM(case  when b.status='D' then 1 else 0 end) as Destroyed "+
+                                        "From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid ";
+                                
+                                infix=  "GROUP BY a.b_name, a.b_qty, a.b_acc_id  ";
+                                
+                                if(orderSelInd==3)
+                                     suffix = " Order by a.b_acc_id;";
+                                else                  // OR
+                                     suffix = " Order by a.b_name;";
+        
+                                // 0 - Sort By Date,
+                                // 1 - Sort By Cost,
+                                // 2 - Sort By Rack,
+                                // 3 - By Book Id
+                                
+                                /*  +--------+--------------+---------+-------+-----------+--------+--------+-----------+----------+----------+----------+----------+-----------+
+                                    | Sr.No. | BookName     | BookQty | Code  | Available | Issued | Repair | Destroyed | TotalQty | TotalAvb | TotalIss | TotalRep | TotalDest |
+                                    +--------+--------------+---------+-------+-----------+--------+--------+-----------+----------+----------+----------+----------+-----------+
+                                    |      1 | Java book    |       3 | 10001 |         1 |      0 |      0 |         2 |        3 |        1 |        0 |        0 |         2 |   */
+                                
+                                sql = prefix + infix + suffix ;
+                                p("---> Report 4: Combo : 5th Selected, Sql = \n"+ sql);
+                                return sql;
+                            }
+                        }
+                    }
+                }
+                return "";
+            }
+                
 }// Class Ended...
