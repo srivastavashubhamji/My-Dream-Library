@@ -8276,4 +8276,18 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             }
             return aff;
         }
+
+        public String getFileName_DateTimeName() {
+            p("getFileName_DateTimeName() invoked...");
+            Calendar cd = Calendar.getInstance();        
+            String time = "" + cd.getTime();
+            String reg = "([ ])";
+            String[] arr = time.split(reg);
+            time = arr[3];
+            time = time.replace(":", "_");
+            String filename = arr[1] + "_" + arr[2] + "_" + time + "_" + "Report.pdf";
+            p(filename);
+            //prints : "Dec_02_08_55_48_Report.pdf"
+            return filename;
+        }
 }// Class Ended...
