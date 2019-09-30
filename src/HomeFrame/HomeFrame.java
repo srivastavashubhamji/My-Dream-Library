@@ -11505,5 +11505,11 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         resetReportComps();
         p("Report clicked actions were performed");
     }
-
+    public void addNewBooks(){
+        clearFields(allBkAddTxt);
+        showOnlyPanel("pnlBkAdd");
+        allBkAddTxt[8].setText("-");    // txtBkAuth2
+        allBkAddTxt[9].setText("-");    // txtBkAbout        
+        lblBkErrSucc.setVisible(false);
+    }
 }// Class Ended...
