@@ -11516,4 +11516,10 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         showOnlyPanel("pnlBkDel");
         lblBkD_errMsg.setText("  ");
     }
+    public void editBookInfo(){
+        showOnlyPanel("pnlBkEdit");
+        txtBkEdit_find.setText("");
+        lblBkEditErr.setVisible(false);
+    }
+
 }// Class Ended...
