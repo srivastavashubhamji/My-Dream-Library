@@ -7676,4 +7676,25 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return results;
         }
     }
+    public void setComps_Issue_C_OnListChange() {
+        String nextName, nextId, nextAuth, nextAbl, nextType,
+               listVal = listBkShow1.getSelectedValue(); //eg: listVal = "Cpp 1.17 [10003] - lalaji ( 3 ) : Programming
+        String arr[] = listVal.split("\\[");
+        nextName = arr[0];		// Name of Book 
+        arr = arr[1].split("\\]");
+        nextId = arr[0];		// Id of Book 
+        arr = arr[1].split(" \\(");
+        nextAuth = arr[0].substring(3, arr[0].length());
+        arr = arr[1].split(" \\)");
+        nextAbl = arr[0].substring(1, arr[0].length());
+        arr = arr[1].split(": ");
+        nextType = arr[1];
+
+        lblBk_I_C_bId.setText("" + nextId);
+        lblBk_I_C_bName.setText("" + nextName);
+        lblBk_I_C_bAuth.setText("" + nextAuth);
+        lblBk_I_C_bType.setText("" + nextType);
+        lblBk_I_C_bAvb.setText("" + nextAbl);
+    }    
+
 }// Class Ended...
