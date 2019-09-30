@@ -11340,5 +11340,26 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         
         showOnlyPanel("pnlBkDel_E");                                                    // From BookDeletionPanel_C ('pnlBkDelNow') to   BookDeletionPanel_E ('pnlBkDel_E')...
     }
-
+    public String updateStatusInTbl_books( int accid,int accno ){
+		//  This method will invoked when Book Deletion SubPanel E : 'pnlBkDel_E'   will be submitted...
+		//      and will Update the 'Status' of Book[10001][101] from 'A' OR 'I' TO 'D', AND returns numOfRowAff...
+        p("\nupdateStatusInTbl_books() invoked...");
+		try{			
+            Connection con = getDbConnObj();
+            if(con == null)
+                return "OOPs...Database Connection not Found, Check & Retry !";
+            PreparedStatement pstmt = null;
+            String sql = "Update Tbl_books set status = 'D' where accid = ? and accno = ?; ";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1,accid);
+            pstmt.setInt(2,accno);
+            int aff = pstmt.executeUpdate();            
+            return (aff+"");
+        }catch(SQLException e){
+            return "";
+        }catch(Exception e){
+            return "";
+        }        
+    }
+    
 }// Class Ended...
