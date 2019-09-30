@@ -11066,5 +11066,89 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             catch(Exception e){    return "";    }
         return retVal;
     }
+    public void handleAccidIssuedTo( String accid, String mId ){
+        //   This method is Called from BkDel SubPnl 'C' Submission...and will Check : If Member[ mId ] had issued a book which has b_Acc_no = accid , Take as: (10001,1002){ ... } 
+    
+            String retVal = "";
+            try{
+                Connection con = getDbConnObj();
+    
+                if(con == null)
+                    throw new Exception("OOPs...Database is Not On, Retry Later !");                                  // Flag
+                
+                PreparedStatement pstmt = null;
+                ResultSet rs = null;            
+                String sql= "Select c.b_name Book, b.b_acc_id Accid, b.accno Accno, c.b_qty Qty, m.mName Member, b.m_Id M_Id, "+
+                            "    (CASE WHEN m.mType='S'  "+
+                            "        THEN (Select 'Stu.')  "+
+                            "        ELSE (Select 'Fac.')  "+
+                            "        END ) as 'Type',  "+
+                            "    date_format(b.m_issDt,'%b %d,%Y') IssuedOn, c.b_price Price,  "+
+                            "    b.t_id TransId, " +
+                            "    c.b_auth1 Author "+
+                            "From bktrans b,  "+
+                            "    mems m ,  "+
+                            "    tbl_book_info c   "+
+                            "Where b.m_id = ?  and b.m_actRetDt is null and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id;";
+                /*      +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+                        | Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+                        +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+                        | Cpp Book | 10002 |   101 |   5 | Bhatt  | 1010 | Fac. | Jul 16,2019 | 300.00 |       1 | Kallo  |
+                        +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+       */
+    
+                //  This Query will Fetch Details of Member   b.m_id = ?   who has got a Book From Library and Not Returned ... came to pay as book is lost by him  ...    sql = Select c.b_name Book, b.b_acc_id Accid, b.accno Accno, c.b_qty Qty, m.mName Member, b.m_Id M_Id,     (CASE WHEN m.mType='S'          THEN (Select 'Stu.')          ELSE (Select 'Fac.')          END ) as 'Type',      date_format(b.m_issDt,'%b %d,%y') IssuedOn, c.b_price Price,      b.t_id TransId,     c.b_auth1 Author From bktrans b,      mems m ,      tbl_book_info c   Where b.m_id = ?  and b.m_actRetDt is null and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id; -- ? m_id  =  1001
+                
+                pstmt = con.prepareStatement( sql );
+                pstmt.setInt(1,Integer.parseInt( mId ));
+                rs = pstmt.executeQuery();
+                if(rs == null)
+                    throw new Exception("OOPs...Something went wrong, Retry Later, ErrId:9007");            
+                
+                if(rs.next() == false)
+                    throw new Exception("OOPs...No Book are Issued to This Member[ "+ mId+" ]");			
+                //  Check how many books are issued to this member and set them in a List 'JListBox' of pnlBkDel_D...
+                
+                boolean isAccidIssued =false;
+                do{
+                    String rsAccid = "" + rs.getInt("Accid");
+                    if( accid.equals(rsAccid) ){                // `accid` is from  pnlBkDel_C ke "Book Id : 10002" se liya gya h...
+                // Checking Book Lost : if the book that Member told  and   the book issued to him before is matched or Not,
+                // Yes  : Set details on Book Delete Subpanel E "pnlBkDel_E", and 
+                // No	: the Book( GIVEN accid) was Lost by Member...					
+                        isAccidIssued = true;
+                        setFinalBookDelPanel_E(rs,accid);
+                        break;
+                    }
+                }while(rs.next());
+                
+                // Book( Accid ) is Not Issued to Member( mId ) : Now Sub_Panel_D par JListBox me Issued Book(s) ka Details aaa jaye...
+                if(isAccidIssued == false){
+                    setPnlBkDel_D(rs,accid);        // set on "pnlBkDel_D"
+                }
+      
+                /*
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                    | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId | Author |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                    | Cpp Book  | 10002 |   102 |   5 | shubh  | 1008 | Fac. | Jul 16,19 | 300.00 |       2 | Kallo  |
+                    | Java book | 10001 |   103 |   3 | shubh  | 1008 | Fac. | Jul 19,19 | 799.00 |       5 | lala   |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+    
+                                                        ------ OR ------
+                    Empty Set returned :
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                    | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId | Author |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                    | Cpp Book  | 10002 |   102 |   5 | shubh  | 1008 | Fac. | Jul 16,19 | 300.00 |       2 | Kallo  |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+        */
+                
+                
+        }catch(SQLException se){
+            showMsgOnLbl("OOPs...Something Went Wrong,Retry Later ! (Err:9005)", lblBkDel_E_Err );
+        }catch(Exception e){
+            lblBkDel_E_Err.setVisible(true);
+            showMsgOnLbl(e.getMessage(), lblBkDel_E_Err );
+        }
+    }
     
 }// Class Ended...
