@@ -11512,4 +11512,8 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         allBkAddTxt[9].setText("-");    // txtBkAbout        
         lblBkErrSucc.setVisible(false);
     }
+    public void removeBooks(){
+        showOnlyPanel("pnlBkDel");
+        lblBkD_errMsg.setText("  ");
+    }
 }// Class Ended...
