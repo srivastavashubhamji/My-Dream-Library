@@ -11264,6 +11264,81 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         listBkRet = new java.util.ArrayList<>();
         listBkRet.add(bookInfos);
         showOnlyPanel("pnlBkDel_E");
-
     }
+    public void setFinalBookDelPanel_E( ResultSet rs, String accidToDel ){
+		//  This method is called in Series when BkDel SubPnl C is submitted...// <-- search like setFinalBookDelPanel_ E(rs,accid)
+
+        int selInd = listBkDel_D.getSelectedIndex();
+        String Book ,Accid , Accno , Qty , Member , M_Id , Type , IssuedOn , Price , TransId, Author, currDate;
+        try{
+            rs.beforeFirst();
+            while(rs.next()){
+                if( accidToDel.equals( ""+ rs.getInt("Accid")))
+                    break;
+            }
+			/*      Only 1: +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+							| Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+							+----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+							| Cpp Book | 10002 |   101 |   5 | Bhatt  | 1010 | Fac. | Jul 16,2019 | 300.00 |       1 | Kallo  |
+							+----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+         */
+            Book = rs.getString(1);
+            Accid = ""+rs.getInt(2);
+            Accno = ""+rs.getInt(3);
+            Qty = ""+rs.getInt(4);
+            Member = rs.getString(5);
+            M_Id = ""+rs.getInt(6);
+            Type = rs.getString(7); if(Type.equalsIgnoreCase("Stu.")) Type="Student"; else Type="Faculty";
+            IssuedOn = rs.getString(8);
+            Price = ""+rs.getDouble(9);
+            TransId = ""+rs.getInt(10);
+            Author = rs.getString(11);
+            
+            currDate = getDate_DyDtMnYr(Calendar.getInstance());
+            currDate = currDate.substring(4);       // "Wed Jan 12,2019".substring(4) --> "Jan 12,2019"...
+            
+        }catch(SQLException se){
+            lblBkDel_E_Err.setVisible(true);
+            lblBkDel_E_Err.setText("OOPs...Something Went Wrong, Retry Later ![ErrId:9008]");
+            return;
+        }catch(Exception e){
+            lblBkDel_E_Err.setVisible(true);
+            lblBkDel_E_Err.setText("OOPs...Something Went Wrong, Retry Later ![ErrId:9009]");
+            return;
+        }
+        
+        lblBk_R_B_mId1.setText(""+M_Id);
+        lblBk_R_B_bId1.setText(""+Accid);
+
+        lblBk_R_B_mNm1.setText(Member);
+        lblBk_R_B_bNm1.setText(Book);
+
+        lblBk_R_B_mType1.setText(Type);
+        lblBk_R_B_bAuth1.setText(Author);
+
+        lblBk_R_B_bIssDt1.setText(currDate);
+        lblBk_R_B_bLastDt2.setText(IssuedOn);
+
+        lblBk_R_B_bNm3.setText(Book);
+        lblBk_I_D_mNm4.setText(Member);
+        
+        lblFineCalc1.setText("Rupees "+Price);
+        btnRetBkRecv1.setText("Receive");
+        lblBkR_B_err1.setText("  ");
+        
+        // Resetting Global ArrayList Collection Object...
+        String sep = "^^^";
+        String finalDelBookInfo = Book + sep + Accid + sep + Accno + sep + Qty + sep + Member + sep + M_Id + sep + Type + sep + IssuedOn + sep + Price + sep + 
+                TransId + sep + Author;
+		// p("\n### memIdSub...public void setFinalBookDelPanel_E( ResultSet rs, String accidToDel ) , \n\t\t finalDelBookInfo= "+finalDelBookInfo);
+        listBkRet = null;
+        listBkRet = new java.util.ArrayList<>();
+        try{
+            listBkRet.add( finalDelBookInfo );
+        }catch(Exception e){
+            p("\n\nOOPs... Nominal Excception occured in -> public void setFinalBookDelPanel_E( ResultSet rs, String accidToDel )\n");
+        }
+        
+        showOnlyPanel("pnlBkDel_E");                                                    // From BookDeletionPanel_C ('pnlBkDelNow') to   BookDeletionPanel_E ('pnlBkDel_E')...
+    }
+
 }// Class Ended...
