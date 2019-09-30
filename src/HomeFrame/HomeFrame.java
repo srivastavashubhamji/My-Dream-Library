@@ -8206,5 +8206,74 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                 }
             }        
         }
-
+        public int check_UpdateExpiryOfMem_ship() {
+            /* This method Checks and Updates Membership Expiry Status from 
+               'A'ctive to 'I'nactive when 6 months past from Subscription
+               i.e.: [System's Date ~ Date of Last Paid Protection Fee of Member >=180]
+             */ int aff = 0;
+            try {
+                p("check_UpdateExpiryOfMem_ship() called...");
+                Connection con = getDbConnObj();
+                if (con == null)
+                    throw new Exception("OOPs...Connection Error !");
+                
+                PreparedStatement st = null;
+    
+                /*  Steps to Debug :-
+                
+                -- This query Selects MemId and cals DaysFromLastProtFee from Table mems :-
+                Select m_id,date(sysdate())Today,doPFee,(case
+                        when (datediff(Date(sysdate()),doPFee)) >= 180
+                        then ( abs(( 180 - datediff(Date(sysdate()),doPFee))))
+                        else (0)
+                        end)DaysFromLastProtFee
+                from mems order by DaysFromLastProtFee;
+    
+                +------+------------+------------+---------------------+
+                | m_id | Today      | doPFee     | DaysFromLastProtFee |
+                +------+------------+------------+---------------------+
+                | 1004 | 2020-07-04 | 2019-08-06 |                 153 |
+                | 1006 | 2020-07-04 | 2019-07-15 |                 175 |
+                | 1005 | 2020-07-04 | 2019-07-05 |                 185 |
+                | 1003 | 2020-07-04 | 2019-07-01 |                 189 |
+                +------+------------+------------+---------------------+
+    
+                -- This is a Final query Used in this Method to Selects 'm_Id' from Upper_Selected_Tabular_Structure temp :-
+    
+                select m_Id from (Select m_id,date(sysdate())Today,doPFee,(case
+                        when (datediff(Date(sysdate()),doPFee)) >= 180
+                        then ( abs(( 180 - datediff(Date(sysdate()),doPFee))))
+                        else (0)
+                        end)DaysFromLastProtFee
+                    from mems order by DaysFromLastProtFee) temp
+                where temp.DaysFromLastProtFee >=180;
+                +------+
+                | m_Id |
+                +------+
+                | 1005 |
+                | 1003 |
+                | .... |
+                +------+    So These Member's Account will be set to 'I'nactive as they paid BookProtectionFee >= 180 days ago.             */
+    
+                String sql = "Update mems set mStatus = 'I' where m_id in ( "
+                        + "Select m_Id from ( "
+                        + "Select m_id,date(sysdate())Today,doPFee,(case "
+                        + "when (datediff(Date(sysdate()),doPFee)) >= 180 "
+                        + "then ( abs(( 180 - datediff(Date(sysdate()),doPFee)))) "
+                        + "else (0) "
+                        + "end)DaysFromLastProtFee "
+                        + "from mems order by DaysFromLastProtFee) temp  "
+                        + "where temp.DaysFromLastProtFee >=180 "
+                        + ");";
+                st = con.prepareStatement(sql);
+                aff = st.executeUpdate();            
+            } catch (SQLException se) {
+                p("...SQLException se in check_UpdateExpiryOfMem_ship()\n e.getMessage() = " + se.getMessage());
+                return -1;
+            } catch (Exception e) {
+                p("...Exception e in check_UpdateExpiryOfMem_ship()\n e.getMessage() = " + e.getMessage());
+                return -2;
+            }
+            return aff;
+        }
 }// Class Ended...
