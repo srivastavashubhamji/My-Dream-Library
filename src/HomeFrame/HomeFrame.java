@@ -8004,5 +8004,53 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             reportReset.setVisible(true);
         }
     }
+    public String validateReportInfo(int selInd) {
+		// Method to Validate Report Information...
+		//  Check DateFields are proper or not : feb = min(28) max(29)
+		//  Returns "ok" ==> if given Num of CheckBox's Rel.Fields are Valid ,==> else proper Err Msg
+        if (selInd == 1) {    //  checkRep_1 isSelected
+            String dd = txtRepDD.getText();
+            String mm = txtRepMM.getText();
+            String yyyy = txtRepYYYY.getText();
+            int d, m, y;
+            try {
+                d = Integer.parseInt(dd);
+                m = Integer.parseInt(mm);
+                y = Integer.parseInt(yyyy);
+            } catch (Exception e) {
+                return "OOPs...Invalid Characters in Date Field, 0-9 digits Allowed !";
+            }
+            if (isValidDDMMYYYY(d, m, y) == false) 
+                return "OOPs...Invalid Date Details entered in First Date !";
+            
+            if (comboRep1.getSelectedIndex() == 0) 
+                return "OOPs...Criteria, for 1st Report query, is not Selected !";
+            else
+                return "ok";
+        }
+        if (selInd == 2) {    //  checkRep_2 isSelected
+            String dd = txtRepDD2.getText();
+            String mm = txtRepMM2.getText();
+            String yyyy = txtRepYYYY2.getText();
+            int d = 0, m = 0, y = 0;
+            try {
+                d = Integer.parseInt(dd);
+                m = Integer.parseInt(mm);
+                y = Integer.parseInt(yyyy);
+            } catch (Exception e) {
+                return "OOPs...Invalid Characters in Date Field,0-9 Allowed !";
+            }
+            if (isValidDDMMYYYY(d, m, y) == false) {
+                return "OOPs...Invalid Date Details entered in Second Date !";
+            }
+            if (comboRep2.getSelectedIndex() == 0)
+                return "OOPs...Criteria, for 2nd Report query, is not Selected !";
+            else
+                return "ok";
+            
+        } else {
+            return "After if - NotOkay";
+        }
+    }
 
 }// Class Ended...
