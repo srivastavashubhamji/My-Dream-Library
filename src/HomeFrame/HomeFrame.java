@@ -11505,6 +11505,9 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         resetReportComps();
         p("Report clicked actions were performed");
     }
+    public void editMember(){
+        // Will Invoked when "Member" Tab's > "Edit Member"(editMemberMI) Menu-Item is clicked...
+    }
     public void addNewBooks(){
         clearFields(allBkAddTxt);
         showOnlyPanel("pnlBkAdd");
