@@ -11214,6 +11214,56 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             p(" !!! Exception occured msg = "+  e.getMessage());
         }
     }
-    
 
+    public void setFinalBookDelPanel_E(int selInd){                 // --> search as "setFinalBookDelPanel_E(selInd);"
+    // This method is called in series... when 'Book Delete SubPanel D "pnlBkDel_D" is Submitted ( 'Selected' & Submitted)'
+		p("\ninvoked... setFinalBookDelPanel_E( , ) 0.01 listVal=>"+ bookInfos +"<= ");        
+        String arrBkDel[] = null;
+        String bookInfos = listBkRet.get(selInd);
+        arrBkDel = bookInfos.split("([\\^\\^\\^]+)");                                         // Explaination...pnlBkDel_B me jo bhi index selected hoga at the time of Submission...Usi Index ke Corres. Global ListObject 'listBkRet' se .get(n) karke fetch hoga and split() karke String Arr 'arrBkDel' me store ho jaayega
+
+        
+					/*  +----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+						| Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+						+----------+-------+-------+-----+--------+------+------+-------------+--------+---------+--------+
+						| Cpp Book | 10002 |   101 |   5 | Bhatt  | 1010 | Fac. | Jul 16,2019 | 300.00 |       1 | Kallo  |
+            arrBkDel[] :+-----0----+---1---+----2--+---3-+---4----+---5--+--6---+------7------+----8---+-----9---+---10---+
+            listBkRet.get(selInd) = "Cpp Book^^^10002^^^101^^^5^^^Bhatt^^^1010^^^Fac.^^^Jul 16,2019^^^300.00^^^1^^^Kallo";
+
+            After spliting listVal ...
+              arrBkDel[]:  0=>Cpp 1.17     1=>10003    2=>101  3=>5    4=>Bhatt    5=>1010   6=>Fac.   7=>Jul 22,2019  8=>100.0    9=>8    10=>lalaji     from : //  p("\nData to set on pnlBkDel_E ....");int i=0;for(String s : arrBkDel)p((i++)+"=>"+s);     */
+
+        String Book = arrBkDel[0] ,Accid = arrBkDel[1] , Accno = arrBkDel[2] , Qty = arrBkDel[3] , Member = arrBkDel[4] , M_Id = arrBkDel[5] , Type = arrBkDel[6] ,
+                      IssuedOn = arrBkDel[7] , Price = arrBkDel[8] , TransId = arrBkDel[9], Author = arrBkDel[10];
+
+        String currDate = getDate_DyDtMnYr(Calendar.getInstance());
+        currDate = currDate.substring(4);                                                      // "Wed Jan 12,2019".substring(4) --> "Jan 12,2019"...
+        
+        lblBk_R_B_mId1.setText(""+M_Id);
+        lblBk_R_B_bId1.setText(""+Accid);
+
+        lblBk_R_B_mNm1.setText(Member);
+        lblBk_R_B_bNm1.setText(Book);
+
+        lblBk_R_B_mType1.setText(Type);
+        lblBk_R_B_bAuth1.setText(Author);
+
+        lblBk_R_B_bIssDt1.setText(currDate);
+        lblBk_R_B_bLastDt2.setText(IssuedOn);
+
+        lblBk_R_B_bNm3.setText(Book);
+        lblBk_I_D_mNm4.setText(Member);
+        
+        lblFineCalc1.setText("Rupees "+Price);
+        btnRetBkRecv1.setText("Receive");
+        lblBkR_B_err1.setText("  ");
+        
+		// Resetting Global Obj 'listBkRet' with All the Information of Book ...
+		// that was selected in Book Deletion SubPanel_D: 'pnlBkDel_D' ...
+        listBkRet = null;
+        listBkRet = new java.util.ArrayList<>();
+        listBkRet.add(bookInfos);
+        showOnlyPanel("pnlBkDel_E");
+
+    }
 }// Class Ended...
