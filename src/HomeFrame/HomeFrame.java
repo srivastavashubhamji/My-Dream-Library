@@ -11436,5 +11436,17 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return "OOPs...Could Not Delete Book , Retry Later ![ErrId:9012]";              // Need RollBack
         }
     }
-
+    public void runReport4(String prefixOfReport4){
+		p("\nrunReport4() ...");
+        try{
+          // prefixOfReport4'll hold = "Set @counter := 0, @counterQty := 0, @counterAvb := 0, @counterIss := 0, @counterRep := 0 ,@counterDes:= 0;";
+            p("\nExe... runReport4(String prefixOfReport4)\n");
+            Connection con = getDbConnObj();
+            Statement st = con.createStatement();
+            st.execute(prefixOfReport4);
+            p("\nEnded... runReport4(String prefixOfReport4)\n");
+        }catch(Exception e){
+            p("!!! Exception in 'runReport4(String prefixOfReport4)' , msg = "+e.getMessage());
+        }
+    }
 }// Class Ended...
