@@ -8052,5 +8052,24 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return "After if - NotOkay";
         }
     }
+    public boolean isValidDDMMYYYY(int dd, int mm, int yyyy) {		
+        /*  Method to validate Date in a DD_MM_YYYY Format
+		Month Num : 1    2    3   4   5   6   7   8   9   10  11  12
+        No of Day : 31 28/29 31  30  31   30  31  31  30  31  30  31
+         */
+
+        if ((yyyy < 2019))
+            return false;
+        
+        if ((mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12)
+                && (dd <= 31))
+            return true;
+        else if ((mm == 2) && (dd <= 29))
+            return true;
+        else if ((mm == 4 || mm == 6 || mm == 9 || mm == 11) && (dd <= 30)) 
+            return true;
+        else
+            return false;
+    }
 
 }// Class Ended...
