@@ -7579,6 +7579,35 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             }
             return ret;
         }
+        public String[] getIssRetBooksRecords(String atWhen, java.util.ArrayList<String> listBkRet) {
+            p("1) Reached in getIssRetBooksRecords()");
+            if (atWhen.equals("atIssue")) {                  // Method Called from Issue Section 
+                String listVal = "Java book [10001] - lala ( 2 ), Programming";            
+                String[] results = null;                    // Storing ArrayList Elements to String Array for parameters
+                results = new String[listBkRet.size()];
+                for (int i = 0; i < listBkRet.size(); i++) 
+                    results[i] = listBkRet.get(i);           
+    
+                return results;
+            } else {    		                           // Method Called From Return Section 
+    
+                String timeStatus, listVal = "1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^2019-06-21^^^2019-07-22^^^2019-08-01^^^10";
+                //               "1002   Shubhu   T   10002   101   Cpp Book   Kallo   2019-06-21   2019-07-22   2019-08-01   10";
+                //          temp [  0       1     2     3      4        5        6          7           8            9        10  ];
+    
+                String[] results = null;                    // Storing ArrayList Elements to String Array for parameters
+                String[] arrBkRet = null;
+                results = new String[listBkRet.size()];
+                int i;
+                // Spliting ResultArray and storing in ListObject...
+                for (i = 0; i < listBkRet.size(); i++) {
+                    arrBkRet = (listBkRet.get(i)).split("([\\^\\^\\^]+)");
+                    timeStatus = getTimeLeftToReturn(Integer.parseInt(arrBkRet[10]));
+                    results[i] = arrBkRet[5] + " [" + arrBkRet[3] + " ]-" + arrBkRet[6] + ", " + arrBkRet[7] + " to " + arrBkRet[8] + ", (" + timeStatus + ")";
+                }
+                return results;
+            }
+        }
     
     
 }// Class Ended...
