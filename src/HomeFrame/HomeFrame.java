@@ -11521,5 +11521,36 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         txtBkEdit_find.setText("");
         lblBkEditErr.setVisible(false);
     }
+    public void showAllBooks(){
+        showOnlyPanel("pnlBkShow");
 
+        lblBkShowErr.setVisible(false);
+        JLabel[] allShowBkSuccLbl = {lblBkShowTotalBk, lblBkShowNBks,
+            lblBkShowBkQty, lblBkShowNBkQty,
+            lblBkShowBkStsA, lblBkShowNBkStsA,
+            lblBkShowBkStsI, lblBkShowNBkStsI,
+            lblBkShowBkStsR, lblBkShowNBkStsR
+        };
+
+        for (JLabel temp : allShowBkSuccLbl) {
+            temp.setForeground(new Color(20, 180, 20));
+            temp.setVisible(true);
+        }
+        try {
+            listBkShow.setModel(
+                    new javax.swing.AbstractListModel<String>() {
+                String[] strings = getBooksRecords();
+
+                public int getSize() {
+                    return strings.length;
+                }
+
+                public String getElementAt(int i) {
+                    return strings[i];
+                }
+            }); // Anonymouse class concept is used here, an Obj of javax.swing.AbstractListModel<String> was created and passed
+        } catch (Exception e) {
+
+        }
+    }
 }// Class Ended...
