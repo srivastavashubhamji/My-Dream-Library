@@ -7821,5 +7821,17 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             lblBk_R_C_1_Total.setText("Rs " + (2 * numDays));
             lblBk_R_B_bLastDt1.setText(lblBk_R_B_bLastDt.getText());
         }
-    
+        public void setRet_C_SubPnl(int subPnlNo) {
+            //  This method will Reset the SubPnl of ReturnBook_C
+            if (subPnlNo == 1) {
+                btnRetBkRecv.setText("Receive");
+                btnRetBkRecv.setForeground(new Color(255, 0, 0));
+            } else {
+                radioR_C_inc.setSelected(false);
+                radioR_C_dec.setSelected(false);
+                txtBkRet_C_2_nDays.setText("0");
+                txtBkRet_C_2_reason.setText("Because of ");
+            }
+        }
+        
 }// Class Ended...
