@@ -11150,5 +11150,70 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             showMsgOnLbl(e.getMessage(), lblBkDel_E_Err );
         }
     }
+    public void setPnlBkDel_D(ResultSet rs, String accidNotIssued){                 // <--- search as "setPnlBkDel_D  (rs,accid);"
+    try{
+        p("\n%%%% setPnlBkDel_D( , , ) invoked... 2.2.1 going to set");
+        rs.first();
+        listBkRet = null;
+        listBkRet = new java.util.ArrayList<>();
+
+
+        String Book, Accid, Accno ,Qty , Member, M_Id, Type, IssuedOn, Price, TransId, Author;
+        String sep = "^^^",row="";
+        int k = 0;            
+        
+        do{
+            k++;
+            Book = rs.getString(1);
+            Accid = ""+rs.getInt(2);
+            Accno = ""+rs.getInt(3);
+            Qty = ""+rs.getInt(4);
+            Member = rs.getString(5);
+            M_Id = ""+rs.getInt(6);
+            Type = rs.getString(7);
+            IssuedOn = rs.getString(8);
+            Price = ""+ rs.getDouble(9);
+            TransId = ""+rs.getInt(10);
+            Author = rs.getString(11);
+            row = Book + sep + Accid + sep + Accno + sep + Qty  + sep + Member + sep + M_Id + sep + Type + sep + IssuedOn + sep + Price + sep + TransId + sep + Author;
+                                                                                                // Exception Generated while adding in listBkRet : 1) UnsupportedOperationException - if the add operation is not supported by this collection ClassCastException - if the class of the specified element prevents it from being added to this collection NullPointerException - if the specified element is null and this collection does not permit null elements IllegalArgumentException - if some property of the element prevents it from being added to this collection IllegalStateException - if the element cannot */
+            listBkRet.add(row);
+
+        }while(rs.next());
+
+
+        
+        lblMetaInfoInBkDel_D.setBackground(new Color(200,200,200));
+        lblMetaInfoInBkDel_D.setText( "Book ["+ accidNotIssued +"] not Issued to "+Member+"["+ M_Id +"], Only "+ k +" Issued Book(s) are -");
+
+        // Book[10010] not Issued to Ramanujan shing[1001], Only 2 Issued Book(s) are -
+        try {
+            listBkDel_D.setModel(                                // This is a JListBox of BkDelPnl_B...
+                new javax.swing.AbstractListModel<String>() {
+                    
+                    String[] strings = getDelBooksRecords("forBkDelPanel_D");
+                    
+                    public int getSize() {  return strings.length;  }
+
+                    public String getElementAt(int i) {    return strings[i];    }
+                }
+            );                
+        } catch (Exception e) {
+            p("\n !!! Nominal Exception from 'del_Bk_2_JList setter'- ... May be IllegalArgumentException occured ~4660 when Setting String to ReturnSubPnl_B_Listbox ,err = >" + e.getMessage()+"<-");
+        }
+        
+            listBkDel_D.setSelectedIndex(0);
+            showOnlyPanel("pnlBkDel_D");
+        // Till Now...
+        //  1) The Book issue to this Member had store in GlobalListObj...
+        //  2) Book Delete subpanel D 'pnlBkDel_D' will visible...
+        //  listBkRet        - Global Object       : to store ResultSet Information ...
+        //  listBkDel_D      - pnlBkDel_D listBox  : to show issued book to the member[ rs.getInt("M_Id")];
+
+        }catch(Exception e){
+            p(" !!! Exception occured msg = "+  e.getMessage());
+        }
+    }
     
+
 }// Class Ended...
