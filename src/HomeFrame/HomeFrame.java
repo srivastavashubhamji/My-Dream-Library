@@ -10899,5 +10899,34 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             }
         }
         return dc;
-    }    
+    }
+    public void setBkDel_C_Panel(){     // means : "pnlBkDelNow"                      Issued  Rep  Des  Available
+        //  arrBkDel[]             = 10001   Java book     3   Programming   lala     799.00     1     0     0     2
+        //  listBkDel.split("^^^") = [ 0       1           2      3            4        5        6     7     8     9  ];
+        
+        String arrBkDel[] = null;
+        String listVal = "10001^^^Java book^^^3^^^Programming^^^lala^^^799.00^^^1^^^0^^^0^^^2";
+                
+        arrBkDel = (listBkRet.get(listBkDel_B.getSelectedIndex())).split("([\\^\\^\\^]+)");                         // Explaination...pnlBkDel_B me jo bhi index selected hoga at the time of Submission...Usi Index ke Corres. Global ListObject 'listBkRet' se .get(n) karke fetch hoga and split() karke String Arr 'arrBkDel' me store ho jaayega
+        lblBkDelE_Bid.setText(  "Book Id : "+arrBkDel[0] );      // THESE ARE 'pnlBkDelNow' s Components...Book Delete Panel 3
+        lblBkDelE_Bname.setText(arrBkDel[1] );
+        lblBkDelE_Btype.setText(arrBkDel[3] );
+        lblBkDelE_qty.setText(  arrBkDel[2] );
+        lblBkDelE_auth.setText( arrBkDel[4] );
+
+        lblBkDelE_nIss.setText( arrBkDel[6] );        
+        lblBkDelE_nRep.setText( arrBkDel[7] );
+        lblBkDelE_nDes.setText( arrBkDel[8] );
+        lblBkDelE_nAva.setText( arrBkDel[9] );
+        
+        lblBkDel_E_Err.setText(" ");
+        lblBkDel_E_Err.setForeground(new Color(240,0,0));
+        txtAreaBkDel_E.setText("");
+        txtBkDel_E_mid.setText("");
+
+        lblBkDelE_rbtnMem.setSelected(true);
+        pnlBkDelE_m.setVisible(true);   // Member lost subPanel...
+        pnlBkDelE_o.setVisible(false);  // Other reason subPanel
+    }
+    
 }// Class Ended...
