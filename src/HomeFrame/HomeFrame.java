@@ -10988,5 +10988,27 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return ("OOPs...Something Went Wrong,(Err:9002),msg="+e.getMessage());                               // Flag
         }
     }    
-
+    public String updateStatusInTblBooks(int accid, int accno){
+        // This Method will Update the datebase Table 'tbl_books' , set Status = 'D'eleted, whose accid and accno are as specified...
+            String retVal = "OOPs...Could not Updated, Retry Later !";
+            try{
+                Connection con = getDbConnObj();
+                PreparedStatement pstmt = null;            
+                if(con == null)
+                    return "OOPs...Database is Not On, Retry Later !";                            // Flag accno
+                String sql = "Update Tbl_books set status = 'D' where accid = ? and accno = ?;";
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1,accid);
+                pstmt.setInt(2,accno);
+                int aff = pstmt.executeUpdate();
+                if(aff != 1)
+                    return ("OOPs...Could not Updated, Retry Later !");
+                else 
+                    return ("tbl_books is Updated Successfully");
+                
+            }catch(Exception e){
+                return ("OOPs...Something Went Wrong,(Err:9002),msg="+e.getMessage());                               // Flag
+            }        
+        }
+    
 }// Class Ended...
