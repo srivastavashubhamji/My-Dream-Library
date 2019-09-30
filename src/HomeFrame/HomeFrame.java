@@ -7833,5 +7833,135 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                 txtBkRet_C_2_reason.setText("Because of ");
             }
         }
-        
+
+          public void returnBookFromSubPnl(int subPnlNo) {
+            try{
+                p("\n'returnBookFromSubPnl(int subPnlNo)' invoked");     // t_id
+                Connection con = getDbConnObj();
+                if (con == null)
+                    throw new Exception("OOPs... Connection Error, Check and Retry !");
+                
+                Statement st = con.createStatement();
+                PreparedStatement pstmt = null;
+                int aff = -1;       // Set to -1 To Demonstrate : No Database Action Performed ...
+
+                /*   arrBkRet
+                    +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+                    | m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed | t_id |
+                    +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+                    | 1001 | Lala   | S          | 10003 |   101 | Cpp 1.17 | lalaji | Jun 21,2019 | Jul 22,2019 | Aug 02,2019 |         -11 |   16 |
+                    +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+                    listBkRet.get( 0 ) =  "1002^^^Shubhu^^^T^^^10002^^^101^^^Cpp Book^^^Kallo^^^Jun 21,2019^^^Jul 22,2019^^^2019-08-01^^^-11^^^16";
+                    arr= split("[^^^]+")= "1002   Shubhu   T   10002   101   Cpp Book   Kallo   Jun 21,2019   Jul 22,2019   Jul 29,2019  -11   16   ";
+                        arrBkRet   =  [   0       1     2     3      4        5        6          7             8              9       10   11 ]; */
+                String[] arrBkRet;
+                int selInd = listBkR_B.getSelectedIndex();
+                arrBkRet = (listBkRet.get(selInd)).split("([\\^\\^\\^]+)");
+
+                // p("\nReturn For Mem_trans_id : " + arrBkRet[11]);     // t_id
+                int fine, tid, accid, accno;
+                fine = Integer.parseInt(lblBk_R_C_1_Total.getText().substring(3));
+                tid = Integer.parseInt(arrBkRet[11]);
+                accid = Integer.parseInt(arrBkRet[3]);
+                accno = Integer.parseInt(arrBkRet[4]);
+
+                if (subPnlNo == 1) {
+                    //          Fire Queries regarding RetBk_C_Subpanel_1 :
+                    //                        p("set autocommit = 0;savepoint retBack;");
+                    String sql = "Update bktrans "
+                            + "Set m_actRetDt = DATE(sysdate()), "
+                            + "m_fine = ?,"
+                            + "m_delayCause = null, "
+                            + "m_nPropDt = null "
+                            + "Where t_id = ?;";
+                    //                        p("Retun Book subpnl1 Query 1 = \n"+sql);
+                    pstmt = null;
+                    pstmt = con.prepareStatement(sql);
+                    pstmt.setInt(1, fine);
+                    pstmt.setInt(2, tid);
+                    if (pstmt.executeUpdate() == 0)
+                        throw new Exception("OOPs... Could Not Save Information, Retry 1_1!");
+                    
+                    sql = "UPDATE tbl_books "
+                            + "SET status = 'A' "
+                            + "WHERE accid = ? AND accno = ?;";
+                    pstmt = null;
+                    pstmt = con.prepareStatement(sql);
+                    pstmt.setInt(1, accid);
+                    pstmt.setInt(2, accno);
+                    if (pstmt.executeUpdate() == 0) {
+                        throw new Exception("OOPs... Could Not Save Information, Retry 1_2!");    // Rollback is needed...
+                    }//  Till Here Both the tables 'bktrans' and 'tbl_books' are Updated Successfully, Now back to Home Page...
+                    lblBkR_A_err.setForeground(new Color(20, 140, 20));
+                    /*   arrBkRet
+                        +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+                        | m_Id | Member | MemberType | accid | accno | Book     | Author | issuedOn    | lastDate    | Today       | daysDelayed | t_id |
+                        +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+
+                        | 1001 | Lala   | S          | 10003 |   101 | Cpp 1.17 | lalaji | Jun 21,2019 | Jul 22,2019 | Aug 02,2019 |         -11 |   16 |
+                        +------+--------+------------+-------+-------+----------+--------+-------------+-------------+-------------+-------------+------+                
+                    */
+                    String okMsg = "Great, " + arrBkRet[1] + "[" + arrBkRet[0] + "] returned " + arrBkRet[5] + "[" + arrBkRet[3] + "]";
+                    lblBkR_A_err.setText(okMsg);
+                    lblBkR_A_err.setForeground(new Color(20, 140, 20));
+                    pnlBk_R_C.setVisible(false);
+                    pnlBk_R_B.setVisible(false);
+                    pnlBk_R_A.setVisible(true);
+                    showOnlyPanel("pnlBkRet");
+
+                    // p("Retun Book subpnl1 Query 2 = \n"+sql);
+                } else {
+                    String cause = txtBkRet_C_2_reason.getText();
+                    int nDaysIncOrDec = Integer.parseInt(txtBkRet_C_2_nDays.getText());
+                    int sign = 1;
+                    if (radioR_C_dec.isSelected())
+                        sign = -1;
+                    
+                    nDaysIncOrDec *= sign;
+                    //Select  date(sysdate()),date_add(date(sysdate()),interval 3 day);
+                    /*
+                        1? => nDaysIncOrDec
+                        2? => cause
+                        3? => nDaysIncOrDec
+                        4? => tid
+                    */
+                    String sql = "";
+                    //                    sql= "Update bktrans " +
+                    //                                "Set m_actRetDt = Date_add(m_propDt , interval ? day)," +
+                    //                                    "m_fine = null, " +
+                    //                                    "m_delayCause = ?,"+
+                    //                                    "m_nPropDt = ?"+
+                    //                                "where t_id = ?;";
+                    //							"OR" 
+                    sql = "Update bktrans set m_actRetDt = Date_add( m_propDt , interval " + nDaysIncOrDec + " day),m_fine = null, m_delayCause = '" + cause + "', m_nPropDt = " + nDaysIncOrDec + " where t_id = " + tid;                
+                    pstmt = con.prepareStatement(sql);
+                    //                    pstmt.setInt(1,nDaysIncOrDec);
+                    //                    pstmt.setString(2,cause);
+                    //                    pstmt.setInt(3,nDaysIncOrDec);
+                    //                    pstmt.setInt(4,tid);
+                    if ((pstmt.executeUpdate()) == 0)
+                        throw new Exception("OOPs... Could Not Save Information, Retry 2_1!");
+                    
+                    sql = "UPDATE tbl_books "
+                            + "SET status = 'A' "
+                            + "WHERE accid = ? AND accno = ?;";                
+                    pstmt = null;
+                    pstmt = con.prepareStatement(sql);
+                    pstmt.setInt(1, accid);
+                    pstmt.setInt(2, accno);
+                    if ((pstmt.executeUpdate()) == 0)
+                        throw new Exception("OOPs... Could Not Save Information, Retry 2_2!");
+                    
+                    String okMsg = "Great, " + arrBkRet[1] + "[" + arrBkRet[0] + "] returned " + arrBkRet[5] + "[" + arrBkRet[3] + "]";
+                    lblBkR_A_err.setText(okMsg);
+                    lblBkR_A_err.setForeground(new Color(20, 140, 20));
+                    pnlBk_R_C.setVisible(false);
+                    pnlBk_R_B.setVisible(false);
+                    pnlBk_R_A.setVisible(true);
+                    showOnlyPanel("pnlBkRet");
+            }
+        } catch (Exception e) {
+            lblBkR_C_err.setForeground(new Color(250, 0, 0));
+            showMsgOnLbl(e.getMessage(), lblBkR_C_err);
+        }
+    }  
 }// Class Ended...
