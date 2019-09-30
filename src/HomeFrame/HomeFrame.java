@@ -8290,4 +8290,20 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             //prints : "Dec_02_08_55_48_Report.pdf"
             return filename;
         }
+        public String getReportTime(){
+            p("getReportTime() invoked...");
+            /*	Eg : Time = Wed Jul 17 01:04:30 PDT 2019
+                Splitted : []arr = time.split(reg);
+                arr[0] = Wed , arr[1] = Jul , arr[2] = 17 , arr[3] = 01:04:30 , arr[4] = PDT , arr[5] = 2019        
+            */
+            Calendar cd = Calendar.getInstance();
+            String time = "" + cd.getTime();
+            String reg = "([ ])";
+            String[] arr = time.split(reg);        
+            time = arr[3];
+            time = time.replace(":", "_");
+            String timeStamp = "" + arr[1] + " " + arr[2] + ", " + arr[5];
+            return timeStamp;
+        }
+        
 }// Class Ended...
