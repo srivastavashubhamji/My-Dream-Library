@@ -7626,5 +7626,54 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             }
             return results;
         }
+        public String[] getDelBooksRecords(String condition) {  // "forBkDelPanel_B"  or "forPnlBk_D"        
+    
+        p("%%%% 2.8.3.1 Reached getDelBooksRecords(\"forBkDelPanel_D\")");
+        if(condition.equals("forBkDelPanel_B")){                        // "forBkDelPanel_B"  <--  search by this
+            
+            String results[] = null, arrBkDel[] = null;
+            String listVal = "10001^^^Java book^^^3^^^Programming^^^lala^^^799.00^^^1^^^0^^^0^^^2";
+                    //                         10001   Java book     3   Programming   lala     799.00       1           0            0        2
+                    //  listBkDel.split("^^^")=[ 0       1           2      3            4        5          6           7            8        9   ];
+            results = new String[listBkRet.size()];
+            int i;
+            for (i = 0; i < listBkRet.size(); i++) {
+                    //  'arrBkDel' will Become : Array of 11 Strings
+                arrBkDel = (listBkRet.get(i)).split("([\\^\\^\\^]+)");//7350
+                    //  arrBkDel[]=  [ 0       1           2      3            4        5          6           7            8        9   ];
+                    //               10001   Java book     3   Programming   lala     799.00       1           0            0        2
+                results[i] = arrBkDel[1] + " [ " + arrBkDel[0] + " ]( " + arrBkDel[3] + " ) - " + arrBkDel[4] + " : Rs " + arrBkDel[5] ;
+                    /*  In JListBox : 0th Index'll hold :-> Java book [ 10001 ](Programming) - lala : 799.00
+                            Index at List               :->     1         0          3          4       5       */
+            }
+            return results;
+        }
+        
+        else{                                                           // "forBkDelPanel_D"  <--  search by this
+        /*  Data => Cpp Book^^^10002^^^102^^^5^^^shubh^^^1008^^^Fac.^^^Jul 16,19^^^300.00^^^2^^^KalloAuth<= , ... , ...     you need to set useful info from all these ArrayList listBkRet values to JListBox as String Array : results[]
+            Array=> arr[ 0 ] =>Cpp Book<=   arr[ 1 ] =>10002<=      arr[ 2 ] =>102<=    arr[ 3 ] =>5<=     arr[ 4 ] =>shubh<=   arr[ 5 ] =>1008<=   arr[ 6 ] =>Fac.<=    arr[ 7 ] =>Jul 16,19<=  arr[ 8 ] =>300.00<=     arr[ 9 ] =>2<=    arr[ 10 ] =>KalloAuth<=     */
+            
+            String results[] = null, arrBkDel[] = null;
+            String listVal = "Cpp Book^^^10002^^^102^^^5^^^shubh^^^1008^^^Fac.^^^Jul 16,19^^^300.00^^^2^^^KalloAuth";// = listBkRet.get(0);
 
+            results = new String[listBkRet.size()];
+            int i;
+            for (i = 0; i < listBkRet.size(); i++) {
+            //  'arrBkDel' will Become : Array of String Objects
+                arrBkDel = (listBkRet.get(i)).split("([\\^\\^\\^]+)");//7350
+                            /*      +----0------+---1---+---2---+--3--+---4----+--5---+--6---+----7------+---8----+----9----+---10---+
+                                    | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId | Author |
+                                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                                    | Cpp Book  | 10002 |   102 |   5 | shubh  | 1008 | Fac. | Jul 16,19 | 300.00 |       2 | Kallo  |
+                                    | Java book | 10001 |   103 |   3 | shubh  | 1008 | Fac. | Jul 19,19 | 799.00 |       5 | lala   |
+                                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+--------+
+                    arrBkDel[]=>  [     0       1           2      3            4        5          6           7            8        9   10  ];
+                    Array   =>      Cpp Book  10002        102     5          shubh    1008        Fac.     Jul 16,19     300.00      2  Kallo   */
+                results[i] = arrBkDel[0] + " [ " + arrBkDel[1] + " ] - " + arrBkDel[10] + " ( Issued On : " + arrBkDel[7] +" )" ;
+                    /*  In JListBox : 0th Index'll hold :-> Cpp Book [10002] - Kallo (Issued On : Jul 16,19)
+                            Index at List               :->  */
+            }
+            return results;
+        }
+    }
 }// Class Ended...
