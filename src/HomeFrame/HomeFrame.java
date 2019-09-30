@@ -10928,6 +10928,65 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         pnlBkDelE_m.setVisible(true);   // Member lost subPanel...
         pnlBkDelE_o.setVisible(false);  // Other reason subPanel
     }
-    
+    public String getAccnoFor(String condition,int accid){
+		/*  This method will Take ( "OtherReasonOfBookDeletion" , "10002" ) OR ( "MemberLostIt_BookDeletion", "10001")
+			and Searches for "accid" in Database according to 'Condition'
+			and Returns (tbl_books Accno( as String )Just Like : "103" )    OR ( "GeneratedException or CustomDefined ErrMsg" )   */
+        try{
+            String accno="NotFound";
+            Connection con = getDbConnObj();
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            String sql = "";
+            
+            if(con == null)
+                return "OOPs...Database Connection not Found, Retry Later !";                            // Flag accno
+				//p("\n%%%%% Step 1");
+
+            if(condition.equals("OtherReasonOfBookDeletion")){                                         // Query Used when pnlBkDelNow Submitted...with OtherReasonSelected:
+                sql = "Select b.Accno Accno from tbl_books b where b.accid = ? and b.status = 'A' limit 1;";
+                    //        +-------+
+                    //        | Accno |
+                    //Returns +-------+     Or      Returns Empty set when No Books are Available 
+                    //        |   102 |
+                    //        +-------+
+                pstmt  = con.prepareStatement(sql);
+                pstmt.setInt(1,accid);
+                boolean isAff = pstmt.execute();                                                        // TRUE if the first result is a    ResultSet_Obj  came from a SELECT Stmt.  FALSE If result is an  UpdateCount  OR  there is no Result.
+
+                if( isAff == false )                                                                    // There is no result
+                        return "OOPs! Could Not Delete, Retry Later !";                                 // Flag accno
+
+                rs = pstmt.getResultSet();
+                if(rs.next() == false)                                                                  // No tabular Structure fetched...
+                    return "OOPs! Can't Delete, as No Books are Available of Book[ "+ accid +" ]";      // Flag accno
+                 
+                else{
+                    accno = ""+ rs.getInt(1);
+                    return accno;
+                }
+            }else{                                                                                      // Query Used when pnlBkDelNow Submitted...with MemberLostBookSelected:
+                sql = "Select b.Accno Accno from tbl_books b where b.accid = "+ accid +" and b.status = 'I' limit 1;";
+				// p("\n%%%%% Step 5_5, sql ->\n"+sql+"\n");
+				//                rs = st.executeQuery(sql);
+                    //        +-------+
+                    //        | Accno |
+                    //        +-------+     Or returns Empty set when No Books are Issued
+                    //        |   101 |
+                    //        +-------+
+                if(rs == null)
+                    return "OOPs...Something Went Wrong, Retry Later !(Err:9004)";
+                
+                if(rs.next() == false)  
+                    return "OOPs! Can't Delete, as No Books are Issued with Id="+ accid +".";          // Flag
+                else
+                    accno = ""+ rs.getInt(1);
+				
+                return accno;
+            }
+        }catch(Exception e){
+            return ("OOPs...Something Went Wrong,(Err:9002),msg="+e.getMessage());                               // Flag
+        }
+    }    
 
 }// Class Ended...
