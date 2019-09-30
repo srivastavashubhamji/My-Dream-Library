@@ -9129,5 +9129,963 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             p("\nException in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());
         }
         return dc;
-    }    
+    }
+    public Document setReport3InTable(Document dc, ResultSet rs, int selInd){ // public Document createReport(ResultSet rs, Document dc, int selCheckBox) 
+        p("\nDocument setReport3InTable( , , ) invoked...");
+		String msg = "";
+        try{
+            switch(selInd){
+                
+                case 1:{ // Report3_Combo1 : 1) Active Student Selected
+					//  Setting Report's Heading in PDF :-                        
+                    msg = "Details of All Active Students :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+
+					/*  +------+-------+------+------+------------+-----------+-----------+
+						| M_id | Mname | cls  | rno  | mPh1       | mAddr     | LastSeen  |
+						+------+-------+------+------+------------+-----------+-----------+
+						| 1004 | Jitu  | BCA  | 4    | 9879879878 | Boharapur | 2019-01-01|     */
+                    
+                    PdfPTable table = new PdfPTable(7);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[7];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("      Id"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Class"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("     Rno"));
+                    cells[3] = c1;    
+
+                    c1 = new PdfPCell(new Phrase("Phone No"));
+                    cells[4] = c1;    
+
+                    c1 = new PdfPCell(new Phrase(" Address"));
+                    cells[5] = c1;    
+
+                    c1 = new PdfPCell(new Phrase("Last Seen"));
+                    cells[6] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(8.0f);
+                        
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+                    
+					/*      +------+-------+------+------+------------+-----------+-----------+
+							| M_id | Mname | cls  | rno  | mPh1       | mAddr     | LastSeen  |
+							+------+-------+------+------+------------+-----------+-----------+
+							| 1004 | Jitu  | BCA  | 4    | 9879879878 | Boharapur | 2019-01-01|         */
+
+                    int rowNum = 0;
+                    while(rs.next()){                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(13.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[1] = c1;
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(3)));
+                        c1.setPaddingLeft(8.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[2] = c1;                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(4)));
+                        if( (""+rs.getLong(4)).length() < 6 )
+                            c1.setPaddingLeft(18.0f);
+                        else{
+                            c1.setPaddingLeft(2.0f);
+                            c1.setPaddingRight(1.0f);
+                        }
+                        cells[3] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(5)));
+                        c1.setPaddingLeft(4.0f);
+                        c1.setPaddingRight(4.0f);
+                        cells[4] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(6)));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+                        
+                        String formattedDate = getDateAsMonDateYear(rs.getString(7));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[6] = c1;
+                        
+                        rowNum++;
+                        if((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);            
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    p("\nReport 3 : Combo 1 :- Case 1: Ended");
+                    break;
+                }
+                case 2:{
+				/*      +------+-----------+------------+------------+-------------+------------+
+						| M_id | Mname     | mPh1       | Ph2        | mAddr       | LastSeen   |
+						+------+-----------+------------+------------+-------------+------------+
+						| 1010 | Bhatt     | 9879879878 |   -        | basharatpur | 2019-07-09 |
+						| 1011 | Durgesh   | 7676766666 | 6767676767 | Nimsaran    | 2019-05-11 |       */
+                    
+                    msg = "Details of All Active Teachers :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+                    
+                    PdfPTable table = new PdfPTable(6);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[6];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("       Id"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("    Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Ph.No.1"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Ph.No.2"));
+                    cells[3] = c1;    
+
+                    c1 = new PdfPCell(new Phrase("   Address"));
+                    cells[4] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Last Seen"));
+                    cells[5] = c1;
+
+                    for (int i = 0; i < cells.length; i++){
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+
+                    c1 = null;
+
+                    int rowNum = 0;
+					/*      +------+-----------+------------+------------+-------------+------------+
+							| M_id | Mname     | mPh1       | Ph2        | mAddr       | LastSeen   |
+							+------+-----------+------------+------------+-------------+------------+
+							| 1010 | Bhatt     | 9879879878 |   -        | basharatpur | 2019-07-09 |
+							| 1011 | Durgesh   | 7676766666 | 6767676767 | Nimsaran    | 2019-05-11 |       */
+                    
+                    while(rs.next()){                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(13.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[1] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(3)));
+                        c1.setPaddingLeft(11.0f);
+                        c1.setPaddingRight(6.0f);
+                        cells[2] = c1;
+                        
+                        String phone2 = "" ;                        
+                        try{
+                            long ph2 = rs.getLong(4);
+                            phone2 = "" + ph2;        // Ph2 may have 2 types of Data : 1) 9898988787 , 2) "   -"
+                        }catch(Exception e){
+                            phone2 = "     -";
+                                                      // p("@@@ Nominal Exception in Rep3Combo2 : e.getMessage() = " + e.getMessage());
+                        }
+
+                        c1 = new PdfPCell(new Phrase("" + phone2));
+                        c1.setPaddingLeft(11.0f);
+                        c1.setPaddingRight(6.0f);
+                        cells[3] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(5)));
+                        c1.setPaddingLeft(1.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[4] = c1;
+					/*      +------+-----------+------------+------------+-------------+------------+
+							| M_id | Mname     | mPh1       | Ph2        | mAddr       | LastSeen   |
+							+------+-----------+------------+------------+-------------+------------+
+							| 1010 | Bhatt     | 9879879878 |   -        | basharatpur | 2019-07-09 |
+							| 1011 | Durgesh   | 7676766666 | 6767676767 | Nimsaran    | 2019-05-11 |       */
+                        
+                        String formattedDate = getDateAsMonDateYear(rs.getString(6));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(4.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[5] = c1;
+                        
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);            
+                                table.addCell(cells[i]);
+                            }
+                        else
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    break;
+                }
+                case 3:{
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | M_id | Mname     | cls  | rno  | Type | mPh1       | mAddr       | LastSeen   |
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | 1004 | Jitu      | BCA  | 4    | Stu. | 9879879878 | Boharapur   | 2019-07-02 |
+					//    | 1010 | Bhatt     | -    | -    | Fac. | 9879879878 | basharatpur | 2019-07-09 |
+        
+                    msg = "Details of All Active Members :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+                    
+
+                    PdfPCell c1 = new PdfPCell(new Phrase("     Id"));                    
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Class"));
+                    cells[2] = c1;
+                    
+                    c1 = new PdfPCell(new Phrase("  Rno"));
+                    cells[3] = c1;    
+
+                    c1 = new PdfPCell(new Phrase("  Type"));
+                    cells[4] = c1;
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | M_id | Mname     | cls  | rno  | Type | mPh1       | mAddr       | LastSeen   |
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | 1004 | Jitu      | BCA  | 4    | Stu. | 9879879878 | Boharapur   | 2019-07-02 |
+					//    | 1010 | Bhatt     | -    | -    | Fac. | 9879879878 | basharatpur | 2019-07-09 |
+
+                    c1 = new PdfPCell(new Phrase("  Ph.No."));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Address"));
+                    c1.setPaddingLeft(1.0f);
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("LastSeen"));
+                    c1.setPaddingLeft(0.0f);
+                    c1.setPaddingRight(0.0f);
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }
+                    table.setHeaderRows(1);
+                    c1 = null;
+                    
+                    int rowNum = 0;
+
+                    while(rs.next()){
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | M_id | Mname     | cls  | rno  | Type | mPh1       | mAddr       | LastSeen   |
+					//    +------+-----------+------+------+------+------------+-------------+------------+
+					//    | 1004 | Jitu      | BCA  | 4    | Stu. | 9879879878 | Boharapur   | 2019-07-02 |
+					//    | 1010 | Bhatt     | -    | -    | Fac. | 9879879878 | basharatpur | 2019-07-09 |
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(8.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+						// p("___Rep3Com1_Sel : "+selInd+", Mname saved");
+                        
+                        String memberClass;
+                        String memberRno;
+                        
+                        if(rs.getString(5).equals("Stu.")){                 // if 'Type' = 'Stu.' then Store those 'Class' and 'Rno' value else Store '   -' in Table Cell...
+                            memberClass = rs.getString(3);
+                            memberRno = "" + rs.getLong(4);
+                        }else{
+                            memberClass = "  -";
+                            memberRno = "  -";
+                        }
+                        c1 = new PdfPCell(new Phrase("" + memberClass));                        
+                        c1.setPaddingLeft(5.0f);                        
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + memberRno));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[3] = c1;
+                        
+                        if( (memberRno.length()) < 6 )
+                            c1.setPaddingLeft(15.0f);
+                        else
+                            c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(5)));
+                        c1.setPaddingLeft(11.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[4] = c1;
+
+						/*      +------+-----------+------+------+------+------------+-------------+------------+
+								| M_id | Mname     | cls  | rno  | Type | mPh1       | mAddr       | LastSeen   |
+								+------+-----------+------+------+------+------------+-------------+------------+       
+							rs =    1       2         3      4      5       6            7             8                 */
+                                                                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(6)));
+                        c1.setPaddingLeft(6.0f);
+                        c1.setPaddingRight(6.0f);
+                        cells[5] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(7)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[6] = c1;
+
+                        String formattedDate = getDateAsMonDateYear(rs.getString(8));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(10.0f);
+
+                        cells[7] = c1;
+                        
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    // p("\nReport 3 : Combo 1 :- Case 3: Ended");                    
+                    break;
+                }
+                case 4:{
+                    // p("--->Report 3: Combo1 :-> 4 index selected");
+                    
+                    msg = "Details of All Inactive Students :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+
+					/*      +------+---------+--------+------+------------+------------+--------+------------+
+							| M_id | Mname   | cls    | rno  | mPh1       | doj        | P.F.   | LastSeen   |
+							+------+---------+--------+------+------------+------------+--------+------------+
+							| 1003 | Hitest  | BA     |    3 | 8787878777 | 2019-07-01 | 500.00 | 2019-08-05 |
+							| 1001 | Shubham | BCA    |    1 | 8601725056 | 2019-06-29 | 500.00 | 2019-07-31 |
+							| 1005 | Sonal   | B.Tech |    3 | 2342342342 | 2019-07-05 | 500.00 | 2019-07-05 |
+							+------+---------+--------+------+------------+------------+--------+------------+      */
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("     Id"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Class"));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Rno"));
+                    cells[3] = c1;    
+
+                    c1 = new PdfPCell(new Phrase(" Ph. No."));
+                    cells[4] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Joined"));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Prot.Fee"));
+                    c1.setPaddingLeft(1.0f);
+                    c1.setPaddingLeft(1.0f);
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Lastseen"));
+                    c1.setPaddingLeft(0.0f);
+                    c1.setPaddingLeft(0.0f);
+                    cells[7] = c1;
+
+					/*      +------+---------+--------+------+------------+------------+--------+------------+
+							| M_id | Mname   | cls    | rno  | mPh1       | doj        | P.F.   | LastSeen   |
+							+------+---------+--------+------+------------+------------+--------+------------+      */
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);
+                    c1 = null;
+                    
+                    int rowNum = 0;
+
+                    while(rs.next()){
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(8.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(3)));
+                        c1.setPaddingLeft(4.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(4)));
+                        if( (""+rs.getLong(4)).length() < 6 )
+                            c1.setPaddingLeft(15.0f);
+                        else
+                            c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);                        
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(5)));
+                        c1.setPaddingLeft(4.0f);
+                        c1.setPaddingRight(3.0f);
+                        cells[4] = c1;
+                                                                        
+                        String formattedDate = getDateAsMonDateYear(rs.getString(6));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(7.0f);
+                        c1.setPaddingRight(0.0f);
+                        cells[5] = c1;
+						/*      +------+---------+--------+------+------------+------------+--------+------------+
+								| M_id | Mname   | cls    | rno  | mPh1       | doj        | P.F.   | LastSeen   |
+								+------+---------+--------+------+------------+------------+--------+------------+       */
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getDouble(7)));
+                        c1.setPaddingLeft(8.0f);                        
+                        cells[6] = c1;
+
+                        formattedDate = getDateAsMonDateYear(rs.getString(8));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(7.0f);
+                        c1.setPaddingRight(0.0f);
+                        cells[7] = c1;
+                        
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++){
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++){
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    p("\nReport 3 : Combo 1 :- Case 4: Ended");
+                    break;                
+                }
+                case 5:{
+                    // p("--->Report 3: Combo1 :-> 5 index selected");
+                    
+                    msg = "Details of All InActive Teachers :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+					/*      +------+-------+------------+------------+------+------------+
+							| M_id | Mname | mPh1       | doj        | P.F. | LastSeen   |
+							+------+-------+------------+------------+------+------------+
+							| 1002 | Satya | 8787878787 | 2019-06-29 | 0.00 | 2019-07-31 |
+							+------+-------+------------+------------+------+------------+      */
+                    PdfPTable table = new PdfPTable(6);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[6];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("      Id"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("    Name"));
+                    cells[1] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Phone No."));
+                    cells[2] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Joined on"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Prot. Fee"));
+                    cells[4] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Last Seen"));
+                    c1.setPaddingLeft(2.0f);
+                    cells[5] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);
+                    c1 = null;
+                    
+                    int rowNum = 0;
+
+                    while(rs.next()){
+					/*      +------+-------+------------+------------+------+------------+
+							| M_id | Mname | mPh1       | doj        | P.F. | LastSeen   |
+							+------+-------+------------+------------+------+------------+
+							| 1002 | Satya | 8787878787 | 2019-06-29 | 0.00 | 2019-07-31 |
+							+------+-------+------------+------------+------+------------+      */
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(12.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(3)));
+                        c1.setPaddingLeft(6.0f);
+                        c1.setPaddingRight(6.0f);
+                        cells[2] = c1;
+                        
+                        String formattedDate = getDateAsMonDateYear(rs.getString(4));   // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(7.0f);                        
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getDouble(5)));
+                        c1.setPaddingLeft(14.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[4] = c1;
+
+                        formattedDate = getDateAsMonDateYear(rs.getString(6));         // Takes as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(6.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[5] = c1;
+						/*      +------+-------+------------+------------+------+------------+
+								| M_id | Mname | mPh1       | doj        | P.F. | LastSeen   |
+								+------+-------+------------+------------+------+------------+
+								| 1002 | Satya | 8787878787 | 2019-06-29 | 0.00 | 2019-07-31 |
+								+------+-------+------------+------------+------+------------+      */
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    // p("\nReport 3 : Combo 1 :- Case 5: Ended");
+                    break;
+                
+                }
+                case 6:{
+                    // p("--->Report 3: Combo1 :-> 6 index selected");
+                
+                    msg = "Details of All Inactive Members :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+					/*      +------+---------+--------+------+------+------------+------------+------------+
+							| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+							+------+---------+--------+------+------+------------+------------+------------+        * /
+							| 1003 | Hitest  | BA     | 3    | Stu. | 8787878777 | 2019-07-01 | 2019-08-05 |
+							| 1002 | Satya   | -      | -    | Fac. | 8787878787 | 2019-06-29 | 2019-07-31 |
+							+------+---------+--------+------+------+------------+------------+------------+        */
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("     Id"));
+                    cells[0] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[1] = c1;
+                    
+                    c1 = new PdfPCell(new Phrase("  Class"));
+                    cells[2] = c1;
+                    
+                    c1 = new PdfPCell(new Phrase("   Rno"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Type"));
+                    cells[4] = c1;
+
+                    c1 = new PdfPCell(new Phrase("  Ph.No."));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Joined"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Last seen"));
+                    c1.setPaddingLeft(0.0f);
+                    c1.setPaddingRight(0.0f);
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }
+                    table.setHeaderRows(1);
+                    c1 = null;
+                    
+                    int rowNum = 0;
+                    while(rs.next()){
+					/*      +------+---------+--------+------+------+------------+------------+------------+
+							| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+							+------+---------+--------+------+------+------------+------------+------------+        
+						rs =   1       2         3       4       5       6           7              8           */
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(10.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+                        
+                        String memberClass;
+                        String memberRno;
+                        
+                        if(rs.getString(5).equals("Stu.")){                 // if 'Type' = 'Stu.' then Store those 'Class' and 'Rno' value else Store '   -' in Table Cell...
+                            memberClass = rs.getString(3);
+                            memberRno = "" + rs.getLong(4);
+                        }else{
+                            memberClass = "    -";
+                            memberRno = "  -";
+                        }
+                        c1 = new PdfPCell(new Phrase("" + memberClass));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + memberRno));                        
+                        
+                        if( memberRno.length() < 6 )
+                            c1.setPaddingLeft(14.0f);
+                        else
+                            c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(5)));
+                        c1.setPaddingLeft(10.0f);
+                        cells[4] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(6)));
+                        c1.setPaddingLeft(4.0f);
+                        c1.setPaddingRight(4.0f);
+                        cells[5] = c1;
+						/*      +------+---------+--------+------+------+------------+------------+------------+
+								| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+								+------+---------+--------+------+------+------------+------------+------------+        
+							rs =   1       2         3       4       5       6           7              8               */
+
+                        String formattedDate = getDateAsMonDateYear(rs.getString(7));         // Takes DOJ as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(7.0f);
+                        c1.setPaddingRight(0.0f);
+                        cells[6] = c1;
+
+                        formattedDate = getDateAsMonDateYear(rs.getString(8));                // Takes LastSeen as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(7.0f);
+                        c1.setPaddingRight(0.0f);
+                        cells[7] = c1;
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    // p("\nReport 3 : Combo 1 :- Case 6: Ended");
+                    break;
+                
+                }
+                case 7:{
+                    // p("--->Report 3: Combo3 :-> 7 index selected");
+                    
+                    msg = "Details of All Library Members :-";
+                    dc.add(new Paragraph(" "));
+                    dc.add(new Paragraph(msg));
+                    String borderBtm = "";
+                    for (int i = 0; i <= (msg.length() - 10); i++)   borderBtm += "_";
+                    dc.add(new Paragraph(borderBtm));
+                    dc.add(new Paragraph(" "));
+					/*      +------+---------+--------+------+------+------------+------------+------------+
+							| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+							+------+---------+--------+------+------+------------+------------+------------+        * /
+							| 1003 | Hitest  | BA     | 3    | Stu. | 8787878777 | 2019-07-01 | 2019-08-05 |
+							| 1002 | Satya   | -      | -    | Fac. | 8787878787 | 2019-06-29 | 2019-07-31 |
+							+------+---------+--------+------+------+------------+------------+------------+        */
+                    PdfPTable table = new PdfPTable(8);
+                    PdfPCell[] cells = null;
+                    cells = new PdfPCell[8];
+                    
+                    PdfPCell c1 = new PdfPCell(new Phrase("    Id"));
+                    cells[0] = c1;
+//                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase("  Name"));
+                    cells[1] = c1;
+                    
+                    c1 = new PdfPCell(new Phrase("  Class"));
+                    cells[2] = c1;
+                    
+                    c1 = new PdfPCell(new Phrase(" Roll No"));
+                    cells[3] = c1;
+
+                    c1 = new PdfPCell(new Phrase("   Type"));
+                    cells[4] = c1;
+//                        table.addCell(c1);
+                    c1 = new PdfPCell(new Phrase(" Ph. No."));
+                    cells[5] = c1;
+
+                    c1 = new PdfPCell(new Phrase(" Joined"));
+                    cells[6] = c1;
+
+                    c1 = new PdfPCell(new Phrase("Last seen"));
+                    c1.setPaddingLeft(0.0f);
+                    c1.setPaddingRight(0.0f);
+                    cells[7] = c1;
+
+                    for (int i = 0; i < cells.length; i++) {
+                        PdfPCell c = null;
+                        c = cells[i];
+                        c.setBackgroundColor(BaseColor.GREEN);
+                        c.setPaddingTop(8.0f);
+                        c.setPaddingBottom(9.0f);
+                        table.addCell(c);
+                    }                           // For Loop Ended ...
+                    table.setHeaderRows(1);     //p("\ntable.getTotalHeight() ==> "+table.getTotalHeight());
+                    c1 = null;
+                    
+                    int rowNum = 0;
+
+                    while(rs.next()){
+					/*      +------+---------+--------+------+------+------------+------------+------------+
+							| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+							+------+---------+--------+------+------+------------+------------+------------+        
+						rs =   1       2         3       4       5       6           7              8               */
+                        c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                        c1.setPaddingLeft(10.0f);
+                        cells[0] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[1] = c1;
+                        
+                        String memberClass;
+                        String memberRno;
+                        
+                        if(rs.getString(5).equals("Stu.")){                 // if 'Type' = 'Stu.' then Store those 'Class' and 'Rno' value else Store '   -' in Table Cell...
+                            memberClass = rs.getString(3);
+                            memberRno = "" + rs.getLong(4);
+                        }else{
+                            memberClass = "  -";
+                            memberRno = "  -";
+                        }
+                        c1 = new PdfPCell(new Phrase(memberClass));
+                        c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[2] = c1;
+                        
+                        c1 = new PdfPCell(new Phrase(memberRno));
+                        if( memberRno.length() < 6 )
+                            c1.setPaddingLeft(12.0f);
+                        else
+                            c1.setPaddingLeft(2.0f);
+                        c1.setPaddingRight(1.0f);
+                        cells[3] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getString(5)));
+                        c1.setPaddingLeft(10.0f);
+                        cells[4] = c1;
+
+                        c1 = new PdfPCell(new Phrase("" + rs.getLong(6)));
+                        c1.setPaddingLeft(5.0f);
+                        c1.setPaddingRight(3.0f);
+                        cells[5] = c1;
+						/*      +------+---------+--------+------+------+------------+------------+------------+
+								| M_id | Mname   | cls    | rno  | Type | mPh1       | doj        | LastSeen   |
+								+------+---------+--------+------+------+------------+------------+------------+        
+							rs =   1       2         3       4       5       6           7              8               */
+
+                        String formattedDate = getDateAsMonDateYear(rs.getString(7));           // Takes DOJ as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(8.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[6] = c1;
+
+                        formattedDate = getDateAsMonDateYear(rs.getString(8));                  // Takes LastSeen as : "2019-03-27"  Returns : "Mar 27,19"...
+                        c1 = new PdfPCell(new Phrase("" + formattedDate));
+                        c1.setPaddingLeft(8.0f);
+                        c1.setPaddingRight(2.0f);
+                        cells[7] = c1;
+
+                        rowNum++;
+                        if ((rowNum % 2) == 0)
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);
+                                table.addCell(cells[i]);
+                            }
+                        else 
+                            for (int i = 0; i < cells.length; i++) {
+                                cells[i].setPaddingTop(4.0f);
+                                cells[i].setPaddingBottom(5.0f);
+                                table.addCell(cells[i]);
+                            }
+                    }
+                    dc.add(table);
+                    dc.add(new Paragraph(" "));
+                    msg = "               :) Total Records Founds : "+rowNum;
+                    dc.add(new Paragraph(msg));
+                    dc.add(new Paragraph(" "));
+                    // p("\nReport 3 : Combo 1 :- Case 7: Ended");
+                    break;                
+                }
+            }
+            
+        }catch(Exception e){
+            msg = "----------- Some Information could not print Properly, Retry -----------";
+            try {   dc.add(new Paragraph(msg)); }
+            catch (Exception ee) { p("\nException in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());   }
+            p("\n9898aa Exception in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());
+        }
+        return dc;
+    }
+    
 }// Class Ended...
