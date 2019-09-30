@@ -11490,4 +11490,20 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         lblBkR_A_err.setForeground(new Color(255, 0, 0));
         lblBkR_A_err.setText("");
     }
+    public void generateReport(){
+        showOnlyPanel("pnlReport");
+        reportErr.setText("");
+        reportErr.setForeground(new java.awt.Color(255, 0, 0));
+        if (isMemShipExpUpdated == -1 || isMemShipExpUpdated == -2) // -1 Represents : This method didn't Updated mStatus of mem_ship
+            isMemShipExpUpdated = check_UpdateExpiryOfMem_ship();
+
+//        int a3=pnlReport.getX();
+//        int a4=pnlReport.getY();
+//        int a1=pnlReport.getWidth();
+//        int a2=pnlReport.getHeight();
+//        pnlReport.setBounds(0,119,994,679);
+        resetReportComps();
+        p("Report clicked actions were performed");
+    }
+
 }// Class Ended...
