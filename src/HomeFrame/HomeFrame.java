@@ -11361,5 +11361,80 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             return "";
         }        
     }
-    
+    public String insertIntoTblBookDel( int accid, int accno, String condition ){   
+        p("\ninsertIntoTblBookDel( , , ) invoked...");
+		try{   // condition obj can be "otherMemberSelected" OR "MemberLostTheBook"
+            
+            Connection con = getDbConnObj();
+            if(con == null)
+                return "OOPs...Database Connection Not Found, Check & Retry";
+            
+            PreparedStatement pstmt = null;        
+            String curryyyymmdd = getDbInsertableCurrentDate();
+            String sql;
+
+            if( condition.equals("otherMemberSelected" )){
+            // If 'Other Member lost the book' Radio Btn of pnlBkDelNow's Submitted...
+                String reason = txtAreaBkDel_E.getText();                
+                sql  = "Insert Into bkDel( accid, accno, reason, deldate )\n" +
+                            "Values( ?, ?, ?, ? );";                            //Insert Into bkDel( accid, accno, reason, deldate )Values( 10001, 102, 'Rat ruined this.', date(sysdate()) );
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1,accid);
+                pstmt.setInt(2,accno);
+                pstmt.setString(3,reason);            
+                pstmt.setString(4,curryyyymmdd);
+                int aff = pstmt.executeUpdate();
+                if(aff != 1)
+                    return "OOPs...Could Not Delete Book , Retry Later !";      // Need RollBack
+                else
+                    return "Table bkDel is Updated Successfully";
+                
+            }else{
+				// Else "MemberLostTheBook"  <--- Search by this to reach on Called Pos.
+
+				/*  Insert Into bkDel( m_Id, accid, accno, deldate )                -- when Member Lost the Book...
+                 Values( 1004, 10001, 102, date(sysdate()) );    */
+                if(btnRetBkRecv1.getText().equals("Receive"))
+				//  p("*** a-4.01 returning as Exception ...\n as Book Lost Fine is not Charged, click ->Received<- !");
+                    return "OOPs...Book Lost Fine ( "+ lblFineCalc1.getText() + " ) is not Charged, click ->Receive<- !";
+                
+                String []arrBkDel = (listBkRet.get(0)).split("([\\^\\^\\^]+)");
+                    //  | Book     | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn    | Price  | TransId | Author |
+                    //  finalDelBookInfo = "Java book^^^10001^^^101^^^3^^^Rohit^^^1007^^^Student^^^Jul 16,2019^^^799.0^^^3^^^lala";                    
+                    //  arr 0 =>Java book<=    arr 1 =>10001<=    arr 2 =>101<=    arr 3 =>3<=	 arr 4 =>Rohit<=     arr 5 =>1007<=    arr 6 =>Student<=     arr 7 =>Jul 16,2019<=    arr 8 =>799.0<=	  arr 9 =>3<=    arr 10 =>lala<=
+                
+                int mId = Integer.parseInt(arrBkDel[5]);
+                sql = "Insert Into bkDel( m_Id, accid, accno, deldate )" +
+                        "Values( ?, ?, ?, ? );";
+                
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1,mId);
+                pstmt.setInt(2,accid);
+                pstmt.setInt(3,accno);
+                pstmt.setString(4,curryyyymmdd);                                            // 'yyyy-mm-dd'
+                String aff = ""+pstmt.executeUpdate();
+                if( aff.equals("1") ){
+                    
+                    // Update the bktrans table : Remove 'null' Set 'CurrentDate' from 'Actual Return date Attr.'...
+                    int bkTransId = Integer.parseInt(arrBkDel[9]);
+                    sql = "Update bktrans set m_actRetDt = ? where t_id = ?;";
+                    pstmt = null;
+                    pstmt = con.prepareStatement(sql);
+                    pstmt.setString(1,curryyyymmdd);
+                    pstmt.setInt( 2, bkTransId );
+                    aff = ""+ pstmt.executeUpdate();
+                    return aff;
+                    
+                }
+                else
+                    return "OOPs...Could Not Delete Book, Retry Later ![ErrId:9011]";       // Need RollBack
+            }
+        }catch(SQLException se){
+            return "OOPs...Something went Wrong, Retry Later ![ErrId:9012]";                // Need RollBack
+        
+        }catch(Exception e){
+            return "OOPs...Could Not Delete Book , Retry Later ![ErrId:9012]";              // Need RollBack
+        }
+    }
+
 }// Class Ended...
