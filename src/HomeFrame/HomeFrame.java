@@ -11565,6 +11565,137 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
         txtMAdd_Class.setText("");
         txtMAdd_Rno.setText("");
     }
-
+    public int setBookFound_C(int selectedIndex){
+        // This method will Fire the Query on the Basis of SelectedIndex of ComboBox & Set FetchedData to subPnlFind_C
+        // Combo Elements : Select Conditoin, Id, Name, Type, Author
+        //          Index :             0   , 1 ,  2  ,  3  ,   4
+            p("\n setBookFound_C() invoked....");
+            int ret = 0;
+            final java.util.ArrayList<String> arrListIss_C;
+    
+            try {
+                Connection con = getDbConnObj();
+                if (con == null)
+                    return -1;      // OOPs... Connection Error 
+                
+                Statement st = null;
+                ResultSet rs = null;
+                arrListIss_C = new java.util.ArrayList<>();
+                String preFix, inFix = "", suFFix;
+                preFix = "Select a.b_acc_id Code,a.b_name BookName, a.b_qty BookQty, a.b_auth1 as Author1 , a.b_auth2 as Author2 , a.b_type as BookType, "
+                        + "sum(case  when b.status='I' then 1 else 0 end) as Issued, "
+                        + "sum(case  when b.status='R' then 1 else 0 end) as Repair, "
+                        + "sum(case  when b.status='D' then 1 else 0 end) as Destroyed, "
+                        + "sum(case  when b.status='A' then 1 else 0 end) as Available "
+                        + "From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid";
+    
+                suFFix = " group by a.b_name, a.b_qty, a.b_acc_id order by a.b_acc_id ;";
+                String data = txtBkI_B_data1.getText();
+    
+                //      Combo Elements : Select Conditoin , Id, Name, Type, Author
+                //               Index :             0    , 1 ,  2  ,  3  ,   4
+                switch (selectedIndex) {
+                    case 1: {
+                        inFix = " where a.b_acc_id = " + Integer.parseInt(data);
+                        break;
+                    }
+                    case 2: {
+                        inFix = " Where a.b_name like '%" + data + "%'";
+                        break;
+                    }
+                    case 3: {
+                        inFix = " Where a.b_type like '%" + data + "%' ";
+                        break;
+                    }
+                    case 4: {
+                        inFix = " Where a.b_auth1 like '%" + data + "%' or a.b_auth2 like '%" + data + "%'";
+                        break;
+                    }
+                }
+                String sql = preFix + inFix + suFFix;
+    
+                p(sql);     // If Searched By Id = 10005 then SQL Query : Select a.b_acc_id Code,a.b_name BookName, a.b_qty BookQty, a.b_auth1 as Author1 , a.b_auth2 as Author2 , a.b_type as BookType, sum(case  when b.status='I' then 1 else 0 end) as Issued, sum(case  when b.status='R' then 1 else 0 end) as Repair, sum(case  when b.status='D' then 1 else 0 end) as Destroyed, sum(case  when b.status='A' then 1 else 0 end) as Available From tbl_book_info a left join tbl_books b on a.b_acc_id = b.accid where a.b_acc_id = 10005 group by a.b_name, a.b_qty, a.b_acc_id order by a.b_acc_id ;
+    
+                st = con.createStatement();
+                rs = st.executeQuery(sql);
+    
+                //Checking if This Data Exists in Book_Table...
+                if(rs == null || rs.next() == false) 
+                    return -2;      // OOPs... No such Found !
+                
+                String strListValue;
+                String author = "", dbAuthor1, dbAuthor2;
+                int i = 0;
+    
+                do{
+                // Code, BookName, Author1, Author2, BookType, BookQty, Issued, Repair, Destroyed, Available
+                // Managing Which Author Will Display when Search Condition = Author
+                
+                // included condition from 'public int setBookIssue_C(int selectedIndex)', whose books Availability = 0;
+                    if (selectedIndex == 4) {
+                    // At subPnl_B : Search_Condition = "Author"
+                        dbAuthor1 = rs.getString("Author1");
+                        dbAuthor2 = rs.getString("Author2");
+                        if (dbAuthor1.matches("^(.*)?" + data + "(.*)?$")) {
+                            author = dbAuthor1;
+                        } else {
+                            author = dbAuthor2;
+                        }
+                    } else {
+                        author = rs.getString("Author1");
+                        //^set Which Of the author( Auth1 || Auth2) will Display on ListBox...
+                    }
+                    
+                    strListValue = rs.getString("BookName") + " [" + rs.getInt("Code") + "] - "
+                            + author + " ( " + rs.getInt("Available") + " ) : " + rs.getString("BookType");
+    
+                    //Arraylist me add karo
+                    arrListIss_C.add(strListValue);
+                    //                p("=> arrList["+(i++)+"] : "+listValue);
+                } while (rs.next());    // Here, All rows Ended : Cursor reached after Last Row
+    
+                if (arrListIss_C.size() == 0) 
+                    return -2;  // refers : OOPs... No Books Available with entered Data...
+                try {
+                    listBkShow2.setModel(
+                            new javax.swing.AbstractListModel<String>() {
+                        //              Method getIssRetBooksRecords() will Take a "java.util.ArrayList<String> Object" 
+                        //              and Returns String[] Array having all the Elements of java.util.ArrayList<String> Object;
+    
+                        String[] strings = getIssRetBooksRecords("atIssue", arrListIss_C);
+    
+                        public int getSize() {
+                            return strings.length;
+                        }
+                        public String getElementAt(int i) {
+                            return strings[i];
+                        }
+                    }
+                    );
+                } catch (Exception e) {
+                    p("Nominal Exception -  ... May be IllegalArgumentException occured ~4860 when Setting String to IssueSubPnl_C on " + e.getMessage());
+                }
+    
+    
+                listBkShow2.setSelectedIndex(0);
+                rs.first();
+    
+                //          Code, BookName, Author1, Author2, BookType, BookQty, Issued, Repair, Destroyed, Available            
+                lblBk_I_C_bId1.setText("" + rs.getInt("Code"));            
+                lblBk_I_C_bName1.setText("" + rs.getString("BookName"));            
+                lblBk_I_C_bAuth1.setText("" + author);            
+                lblBk_I_C_bType1.setText("" + rs.getString("BookType"));            
+                lblBk_I_C_bAvb1.setText("" + rs.getInt("Available"));
+                // This Fun -.- : Each Time When List's Selected Index changes : Related Label's Values must be Changed                        
+                ret = 1;              // Okay ( Go Further : Not to Print )
+    
+        } catch (IllegalArgumentException e) {
+            p("1222dd major Exception -  ... IllegalArgumentException occured ~4862 when Setting String to FindSubPnl_C on " + e.getMessage());
+        } catch (Exception e) {
+            p("New Warning ... Exception occured ~4862 when Setting String to FindSubPnl_C on " + e.getMessage());
+            ret = 0;            // OOPs... Data could not Fetched Properly, Retry !
+        }
+        return ret;
+    }
 
 }// Class Ended...
