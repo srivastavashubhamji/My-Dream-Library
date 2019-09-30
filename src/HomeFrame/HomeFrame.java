@@ -11481,4 +11481,13 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
             btnBkI_A_show.setVisible(false); // Appears when The Enter mem Already Took One/More Books...
         } catch (Exception e) {        }
     }
+    public void returnTheBook(){
+        showOnlyPanel("pnlBkRet");
+        lblBkR_A_Data.setText("");
+        pnlBk_R_B.setVisible(false);
+        pnlBk_R_C.setVisible(false);
+        pnlBk_R_A.setVisible(true);
+        lblBkR_A_err.setForeground(new Color(255, 0, 0));
+        lblBkR_A_err.setText("");
+    }
 }// Class Ended...
