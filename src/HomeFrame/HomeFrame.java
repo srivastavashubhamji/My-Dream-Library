@@ -11010,5 +11010,61 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                 return ("OOPs...Something Went Wrong,(Err:9002),msg="+e.getMessage());                               // Flag
             }        
         }
+        public String checkIssuedNdSetOnPnl( String mId ){
+            String retVal = "OOPs...Could Not Delete the Book, Retry Later !";                  // Flag
+            try{
+                Connection con = getDbConnObj();
+                if(con == null)
+                    return "OOPs...Database is Not On, Retry Later !";                          // Flag
+                PreparedStatement pstmt = null;
+                ResultSet rs = null;
+            /*
+                    "Select c.b_name Book, b.b_acc_id Accid, b.accno Accno, c.b_qty Qty, m.mName Member, b.m_Id M_Id, "+
+                    "    (CASE WHEN m.mType='S'  "+
+                    "        THEN (Select 'Stu.')  "+
+                    "        ELSE (Select 'Fac.')  "+
+                    "        END ) as 'Type',  "+
+                    "    date_format(b.m_issDt,'%b %d,%y') IssuedOn, c.b_price Price,  "+
+                    "    b.t_id TransId  "+
+                    "from bktrans b,  "+
+                    "    mems m ,  "+
+                    "    tbl_book_info c   "+
+                    "where b.m_id = 1008 and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null;  ";      
+    
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                    | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                    | Cpp Book  | 10002 |   102 |   5 | shubh  | 1008 | Fac. | Jul 16,19 | 300.00 |       2 |
+                    | Java book | 10001 |   103 |   3 | shubh  | 1008 | Fac. | Jul 19,19 | 799.00 |       5 |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                                                        ------ OR ------
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                    | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                    | Cpp Book  | 10002 |   102 |   5 | shubh  | 1008 | Fac. | Jul 16,19 | 300.00 |       2 |
+                    +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+            */
+                String sql= "Select c.b_name Book, b.b_acc_id Accid, b.accno Accno, c.b_qty Qty, m.mName Member, b.m_Id M_Id, "+
+                            "    (CASE WHEN m.mType='S'  "+
+                            "        THEN (Select 'Stu.')  "+
+                            "        ELSE (Select 'Fac.')  "+
+                            "        END ) as 'Type',  "+
+                            "    date_format(b.m_issDt,'%b %d,%y') IssuedOn, c.b_price Price,  "+
+                            "    b.t_id TransId  "+
+                            "From bktrans b,  "+
+                            "    mems m ,  "+
+                            "    tbl_book_info c   "+
+                            "Where b.m_id = ? and b.m_id = m.m_id and b.b_acc_id = c.b_acc_id and b.m_actRetDt is null;";
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1,Integer.parseInt(mId));
+                rs = pstmt.executeQuery();
+                
+                /*          rs =  +-----------+-------+-------+-----+--------+------+------+-----------+--------+---------+
+                                  | Book      | Accid | Accno | Qty | Member | M_Id | Type | IssuedOn  | Price  | TransId |
+                                  +--1--------+---2---+---3---+--4--+---5----+--6---+--7---+----8------+---9----+----10---+         */
+        }catch(SQLException se){    return "";    }
+            catch(Exception e){    return "";    }
+        return retVal;
+    }
     
 }// Class Ended...
