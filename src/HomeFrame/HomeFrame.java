@@ -8774,11 +8774,360 @@ p("\n%%%%% yyyy-mm-dd=>"+ yyyy +"-"+ mm +"-"+ dd +"<=");
                                 sql = prefix + infix + suffix ;
                                 p("---> Report 4: Combo : 5th Selected, Sql = \n"+ sql);
                                 return sql;
-                            }
-                        }
                     }
                 }
-                return "";
             }
-                
+        }
+        return "";
+    }
+    public Document createReport(ResultSet rs, Document dc, int selReportCheckBox) {
+        /*
+            This method will Take Resultset According to -> which Report_CheckBox was Selected( Starts from 0 )...
+            And Adds Fetched Table of Resultset into Given Document...  */
+            p("\n Exe..ing creteReport( _,_,_ ) for i = " + selReportCheckBox);
+            String msg = "";
+            try {
+                switch (selReportCheckBox) {
+                    case 0:     // List of All issued books that are overdue [ 1) At this Date || 2) After this Date ] 
+                        {
+                        p("\nCase 0: Started");
+                        
+                        if (comboRep1.getSelectedIndex() == 1) // At this Date
+                            msg = "List of All issued books that will overdue : At  " + txtRepDD.getText() + "-" + txtRepMM.getText() + "-" + txtRepYYYY.getText() + " :-";
+                        else // After this Date
+                            msg = "Details of All Issued Books that will Overdue : After  " + txtRepDD.getText() + "-" + txtRepMM.getText() + "-" + txtRepYYYY.getText() + " :-";
+    
+                        //  Setting Report's Heading in PDF :-
+                        dc.add(new Paragraph(" "));
+                        dc.add(new Paragraph(msg));
+                        String borderBtm = "";
+                        for (int i = 0; i <= (msg.length() - 16); i++)
+                            borderBtm += "_";                    
+                        dc.add(new Paragraph(borderBtm));
+                        dc.add(new Paragraph(" "));
+    
+                        /*      Setting Tabular Information of This Report Query :-
+                                Fields in ResultSet : 9
+                                +-----------+--------+------+--------+------+-----------+-----------+------+------------+
+                                | Book      | Member | M_Id | Class  | Rno  | IssuedOn  | LastDate  | Left | Phone      |
+                                +-----------+--------+------+--------+------+-----------+-----------+------+------------+       */
+    
+                        PdfPTable table = new PdfPTable(9);
+                        PdfPCell[] cells = null;
+                        cells = new PdfPCell[9];
+                        {
+                            PdfPCell c1 = new PdfPCell(new Phrase("Book"));
+                            cells[0] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Member"));
+                            cells[1] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("M_Id"));
+                            cells[2] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Class"));
+                            cells[3] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Rno"));
+                            cells[4] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Issued On"));
+                            cells[5] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Last Date"));
+                            cells[6] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Left"));
+                            cells[7] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("Phone"));
+                            cells[8] = c1;
+    
+                        }
+    
+                        for (int i = 0; i < cells.length; i++) {
+                            PdfPCell c = cells[i];
+                            c.setBackgroundColor(BaseColor.GREEN);
+                            c.setPaddingTop(5.0f);
+                            c.setPaddingLeft(6.0f);
+                            c.setPaddingBottom(5.0f);
+                            c.setPaddingLeft(6.0f);
+                            if (i == 1) {
+                                c.setPaddingLeft(2.0f);
+                                c.setPaddingRight(0.0f);
+                            }
+                            if (i == 2 || i == 4 || i == 7)
+                                c.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
+                            
+                            table.addCell(c);
+                        }
+                        table.setHeaderRows(1);
+                        //  Setting Data below to Header :-
+                        int rowNum = 0;
+                        while (rs.next()) {
+    
+                            PdfPCell c1 = new PdfPCell(new Phrase("" + rs.getString(1)));
+                            c1.setPaddingLeft(2.0f);c1.setPaddingRight(1.0f);
+                            cells[0] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                            c1.setPaddingLeft(2.0f);c1.setPaddingRight(1.0f);
+                            cells[1] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getInt(3)));
+                            c1.setPaddingLeft(6.0f);
+                            cells[2] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(4)));
+                            c1.setPaddingLeft(5.0f);
+                            cells[3] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getInt(5)));
+                            if (("" + rs.getInt(5)).length() < 5) 
+                                c1.setPaddingLeft(13.0f);
+                            else         
+                                c1.setPaddingLeft(5.0f);
+                            cells[4] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(6)));
+                            c1.setPaddingLeft(6.0f);
+                            cells[5] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(7)));
+                            c1.setPaddingLeft(6.0f);
+                            cells[6] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getInt(8)));
+                            c1.setPaddingLeft(10.0f);
+                            cells[7] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getLong(9)));
+                            c1.setPaddingLeft(4.0f);c1.setPaddingRight(3.0f);
+                            cells[8] = c1;
+    
+                            rowNum++;
+                            if ((rowNum % 2) == 0) {
+                                for (int i = 0; i < cells.length; i++) {
+                                    cells[i].setPaddingTop(4.0f);
+                                    cells[i].setPaddingBottom(5.0f);
+                                    cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);            
+                                    table.addCell(cells[i]);
+                                }
+                            } else {
+                                for (int i = 0; i < cells.length; i++) {
+                                    cells[i].setPaddingTop(4.0f);
+                                    cells[i].setPaddingBottom(5.0f);
+                                    table.addCell(cells[i]);
+                                }
+                            }
+                        }
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                        break;
+                    }
+                    
+                    case 1:     // List of Members whose Membership Expires [ 1) At Given Date  2) Before a Date ]
+                    {
+                        if (comboRep1.getSelectedIndex() == 1)
+                            msg = "Details of Members whose Membership's Expiry Date is  " + txtRepDD2.getText() + "-" + txtRepMM2.getText() + "-" + txtRepYYYY2.getText();
+                        else
+                            msg = "Details of Members whose Membership's Expiry Date Before  " + txtRepDD2.getText() + "-" + txtRepMM2.getText() + "-" + txtRepYYYY2.getText()+" are";
+    
+                        dc.add(new Paragraph(" "));
+                        dc.add(new Paragraph(" "));
+                        //  Setting Report's Heading in PDF :- 
+                        Paragraph para = new Paragraph(msg);
+                        dc.add(new Paragraph(msg));
+                        String borderBtm = "";
+                        for (int i = 0; i <= (msg.length() - 10); i++) 
+                            borderBtm += "_";
+                        
+                        dc.add(new Paragraph(borderBtm));
+                        dc.add(new Paragraph(" "));
+                        /*  Setting Tabular Information of This Report Query 2:-
+                            Fields in ResultSet : 8
+                            +------+---------+------------+--------+------+-----------+-----------+------+
+                            | M.Id | Member  | Contact No | Class  | Rno  | Last Paid | Expire On | Left |
+                            +------+---------+------------+--------+------+-----------+-----------+------+    
+                            | 1001 | Shubham | 8601725056 | BCA    | 1    | Jun 29,19 | Dec 26,19 |  161 |
+                            +------+---------+------------+--------+------+-----------+-----------+------+
+                        */
+                        PdfPTable table = new PdfPTable(8);
+                        PdfPCell[] cells = null;
+                        cells = new PdfPCell[8];
+                        {
+                            PdfPCell c1 = new PdfPCell(new Phrase("Id"));
+                            c1.setPaddingLeft(20.0f);
+                            cells[0] = c1;
+                            c1 = new PdfPCell(new Phrase("Member"));
+                            c1.setPaddingLeft(5.0f);
+                            cells[1] = c1;
+                            c1 = new PdfPCell(new Phrase("Ph.No."));
+                            c1.setPaddingLeft(8.0f);
+                            cells[2] = c1;
+                            c1 = new PdfPCell(new Phrase("Class"));
+                            c1.setPaddingLeft(8.0f);
+                            cells[3] = c1;
+                            c1 = new PdfPCell(new Phrase("Roll No"));
+                            c1.setPaddingLeft(6.0f);
+                            cells[4] = c1;
+                            c1 = new PdfPCell(new Phrase("Last Paid"));
+                            c1.setPaddingLeft(0.0f);
+                            cells[5] = c1;
+                            c1 = new PdfPCell(new Phrase("Expire"));
+                            c1.setPaddingLeft(8.0f);
+                            cells[6] = c1;
+                            c1 = new PdfPCell(new Phrase("Left"));
+                            c1.setPaddingLeft(13.0f);
+                            cells[7] = c1;
+                        }
+                        for (int i = 0; i < cells.length; i++) {
+                            cells[i].setBackgroundColor(BaseColor.GREEN);
+                            cells[i].setPaddingTop(10.0f);
+                            cells[i].setPaddingBottom(10.0f);
+                            cells[i].setPaddingRight(2.0f);
+                            table.addCell(cells[i]);
+                        }
+                        table.setHeaderRows(1);
+    
+                        int rowNum = 0;
+                        while (rs.next()) {
+    
+                            PdfPCell c1 = new PdfPCell(new Phrase("" + rs.getInt(1)));
+                            c1.setPaddingLeft(10.0f);
+                            cells[0] = c1;
+    
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(2)));
+                            c1.setPaddingLeft(2.0f);
+                            c1.setPaddingRight(1.0f);
+                            cells[1] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getLong(3)));
+                            c1.setPaddingLeft(4.0f);
+                            c1.setPaddingRight(3.0f);
+                            cells[2] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(4)));
+                            c1.setPaddingLeft(7.0f);
+                            cells[3] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getInt(5)));
+                            if (("" + rs.getInt(5)).length() < 5) {
+                                c1.setPaddingLeft(15.0f);
+                            } else {
+                                c1.setPaddingLeft(5.0f);
+                            }
+                            cells[4] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(6)));
+                            c1.setPaddingLeft(10.0f);
+                            c1.setPaddingRight(5.0f);
+                            cells[5] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getString(7)));
+                            c1.setPaddingLeft(10.0f);
+                            c1.setPaddingRight(5.0f);
+                            cells[6] = c1;
+                            c1 = new PdfPCell(new Phrase("" + rs.getInt(8)));
+                            c1.setPaddingLeft(13.0f);
+                            cells[7] = c1;
+    
+                            rowNum++;
+                            if ((rowNum % 2) == 0) {
+                                for (int i = 0; i < cells.length; i++) {
+                                    cells[i].setPaddingTop(4.0f);
+                                    cells[i].setPaddingBottom(5.0f);
+                                    cells[i].setBackgroundColor(BaseColor.LIGHT_GRAY);            
+                                    table.addCell(cells[i]);
+                                }
+                            } else {
+                                for (int i = 0; i < cells.length; i++) {
+                                    cells[i].setPaddingTop(6.0f);
+                                    cells[i].setPaddingBottom(7.0f);
+                                    table.addCell(cells[i]);
+                                }
+                            }
+                        }
+                        dc.add(table);
+                        dc.add(new Paragraph(" "));
+                        msg = "               :) Total Records Founds : "+rowNum;
+                        dc.add(new Paragraph(msg));
+                        dc.add(new Paragraph(" "));
+                        break;
+                    }
+                    
+                    case 2: 
+                    {                    
+                        int selInd = comboRep3.getSelectedIndex();
+                        
+                        if(selInd == 1){                    
+                            msg = "Details of All active Students :-";
+                            dc = setReport3InTable(dc,rs,1);
+                        }
+                        else if(selInd == 2){                        
+                            msg = "Details of All active Teachers :-";
+                            dc = setReport3InTable(dc,rs,2);
+                        }
+                        else if(selInd == 3){                        
+                            msg = "Details of All active Members :-";
+                            dc = setReport3InTable(dc,rs,3);
+                        }
+                        else if(selInd == 4){
+                            msg = "Details of All Inactive Students :-";
+                            dc = setReport3InTable(dc,rs,4);
+                        }
+                        else if(selInd == 5){
+                            msg = "Details of All Inactive Teachers :-";
+                            dc = setReport3InTable(dc,rs,5);
+                        }
+                        else if(selInd == 6){
+                            msg = "Details of All Inactive Members :-";
+                            dc = setReport3InTable(dc,rs,6);
+                        }
+                        else {//(selInd == 7)
+                            msg = "Details of All Members of the Library :-";
+                            dc = setReport3InTable(dc,rs,7);
+                        }
+                        break;
+                    }
+                    
+                    
+                    case 3: // Report 4 : All Books....
+                    {
+                        int selInd = comboRep4.getSelectedIndex();
+                        
+                        if(selInd == 1){
+                            msg = "Details of All active Students :-";
+                            dc = setReport4InTable(dc,rs,1);
+                        }
+                        else if(selInd == 2){
+                            msg = "Details of All active Teachers :-";
+                            dc = setReport4InTable(dc,rs,2);
+                        }
+                        else if(selInd == 3){                        
+                            msg = "Details of All active Members :-";
+                            dc = setReport4InTable(dc,rs,3);
+                        }
+                        else if(selInd == 4){
+                            msg = "Details of All Inactive Students :-";
+                            dc = setReport4InTable(dc,rs,4);
+                        }
+                        else {//(selInd == 5)
+                            msg = "Details of All Inactive Teachers :-";
+                            dc = setReport4InTable(dc,rs,5);
+                        }
+                        break;
+                    }
+                    default: {
+    
+                    }
+                }
+        } catch (Exception e){
+            msg = "----------- Some Information could not print Properly, Retry -----------";
+            try {
+                dc.add(new Paragraph(msg));
+            } catch (Exception ee) {
+            }
+            p("\nException in creteReport(_,_,_) , ee.getMessage() =>" + e.getMessage());
+        }
+        return dc;
+    }    
 }// Class Ended...
